@@ -1,40 +1,32 @@
-"""Database functionality for Epic 4"""
+# db_saver.py
+# Doel: slaat de gegenereerde testcode op in de database
 
 import requests
 import os
 from dotenv import load_dotenv
 from datetime import datetime
 
-# Load .env from project root (two folders up)
-env_path = os.path.join(os.path.dirname(__file__), "../../.env")
-load_dotenv(env_path)
-
-api_url = os.getenv("API_URL")
-api_key = os.getenv("API_KEY")
-database = os.getenv("DATABASE")
+# Laad .env vanuit de projectroot
+load_dotenv(os.path.join(os.path.dirname(__file__), "../../.env"))
 
 
 def save_test_result(generated_code, status="GENERATED"):
     """
-    Saves generated test code to the database.
+    Slaat de gegenereerde testcode op in de database via de HBO-ICT API.
 
     Args:
-        generated_code (str): contents of the generated .py file
-        status (str): test status, default GENERATED
+        generated_code (str): inhoud van het gegenereerde .py bestand
+        status         (str): status van de test, standaard GENERATED
 
     Returns:
-        int: insert ID of the new row
+        int: het insert ID van de nieuwe rij
     """
-    if not api_url or not api_key or not database:
-        raise ValueError("Missing API credentials in .env file")
+    url      = os.getenv("API_URL") + "/db"
+    api_key  = os.getenv("API_KEY")
+    database = os.getenv("DATABASE")
 
-    url = f"{api_url}/db"
-    query = "INSERT INTO s2bima2526_leefooguuxoo98_TESTRESULT (generated_code, status, created_at) VALUES (?, ?, ?)"
+    query  = "INSERT INTO testresult (generated_code, status, created_at) VALUES (?, ?, ?)"
     values = (generated_code, status, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-
-    print(f"[DEBUG] Posting to: {url}")
-    print(f"[DEBUG] Database: {database}")
-    print(f"[DEBUG] Auth header: Bearer {api_key[:30]}...")
 
     response = requests.post(
         url=url,
@@ -43,13 +35,9 @@ def save_test_result(generated_code, status="GENERATED"):
         timeout=10
     )
 
-    print(f"[DEBUG] Status code: {response.status_code}")
     result = response.json()
-    print(f"[API Response] {result}")
 
-    if response.status_code == 200 and isinstance(result, dict) and "insertId" in result:
+    if response.status_code == 200 and "insertId" in result:
         return result["insertId"]
     else:
-        raise ValueError(f"Database error (status {response.status_code}): {result}")
-
-
+        raise ValueError(f"[FOUT] Database error: {result}")

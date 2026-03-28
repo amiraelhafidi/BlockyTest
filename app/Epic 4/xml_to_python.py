@@ -1,8 +1,15 @@
 # xml_to_python.py
 # Doel: leest een Blockly XML bestand en genereert een Python testbestand
+#       en slaat het resultaat op in de database
 
 import xml.etree.ElementTree as ET
 import os
+import requests
+from dotenv import load_dotenv
+from datetime import datetime
+
+# Laad .env vanuit de projectroot
+load_dotenv(os.path.join(os.path.dirname(__file__), "../../.env"))
 
 BLOCKLY_NAMESPACE = "https://developers.google.com/blockly/xml"
 
@@ -95,8 +102,11 @@ def write_python_test(code_lines, output_path):
     Schrijft de gegenereerde code regels weg als een compleet Python testbestand.
 
     Args:
-        code_lines (list[str]): Python regels van parse_blocks()
-        output_path (str): waar het .py bestand opgeslagen wordt
+        code_lines  (list[str]): Python regels van parse_blocks()
+        output_path (str):       waar het .py bestand opgeslagen wordt
+
+    Returns:
+        None
     """
     header = """\
 import pytest
@@ -130,9 +140,17 @@ def test_generated():
 
 
 if __name__ == "__main__":
-    input_xml_path = "../../tests/test_input.xml"    # ← aangepast
+    from db_saver import save_test_result
+
+    input_xml_path = "../../tests/test_input.xml"
     output_py_path = "generated_tests/test_generated.py"
 
-    xml_root = load_xml(input_xml_path)
+    xml_root     = load_xml(input_xml_path)
     python_lines = parse_blocks(xml_root)
     write_python_test(python_lines, output_py_path)
+
+    with open(output_py_path, "r") as f:
+        generated_code = f.read()
+
+    insert_id = save_test_result(generated_code)
+    print(f"[OK] Opgeslagen in database met ID: {insert_id}")
