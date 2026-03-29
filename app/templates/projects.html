@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head> 
+    <title>BlockyTest</title>
+    <link rel = "stylesheet" href = "{{ url_for('static', filename='css/projects.css') }}">
+</head>
+<body>
+    <header> 
+        <h1> BlockyTest </h1> 
+    </header>
+    <main>
+     <div class = "top_bar">
+        <h2> Mijn projecten </h2>
+        <a href = "/add" class= "add_button"> + </a>
+     </div>
+
+     {% if projects %} 
+        <div class = "grid"> 
+            {% for project in projects %} 
+                <div class ="card">
+                    <p>{{ project.name }} </p>
+                </div>
+            {% endfor %}
+        </div>
+        {% else %} 
+            <p> Er zijn nog geen projecten toegevoegd. </p>
+        {% endif %}
+  </main>
+</body>
+</html>

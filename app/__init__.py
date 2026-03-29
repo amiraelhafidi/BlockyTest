@@ -1,9 +1,9 @@
 """Entry point for Flask application"""
 
 from flask import Flask
-
 from app.events import bp as events_bp
 from app.main import bp as main_bp
+from app.Overzichtspagina import bp as projects_bp
 
 
 def create_app():
@@ -14,6 +14,8 @@ def create_app():
     app.config.from_pyfile("settings.py")
 
     app.register_blueprint(main_bp)
+
+    app.register_blueprint(projects_bp)
 
     app.register_blueprint(events_bp, url_prefix="/events")
 
