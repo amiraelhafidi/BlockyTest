@@ -1,17 +1,21 @@
 body { font : Arial;
     margin: 0;
-    padding: 20px;
+    padding: 50px;
+    background-color: rgb(79, 99, 177);
 }
 
-header {margin-bottom: 20px;}
+header {margin-bottom: 150px;
+color: solid black;
+font-size: larger;}
 
-.top_bar { display:flex;
+.top_bar { color: solid black;
+    display:flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.add_button { border: 1px solid black;
-    padding: 5px 10px;
+.add_button { border: 3px solid black;
+    padding: 70px 100px;
         }
 
 .grid {display: flex;
@@ -20,9 +24,9 @@ header {margin-bottom: 20px;}
     margin-top: 20px;
     }
 
-.card {border: 1px solid black;
-    width: 200px;
-    height: 80px;
+.card {border: 1px solid rgb(124, 33, 33);
+    width:500px;
+    height: 500px;
     display: flex;
     justify-content: center;
     align-items: center;
