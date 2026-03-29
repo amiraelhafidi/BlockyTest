@@ -12,14 +12,15 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "../../.env"))
 
 def save_test_result(generated_code, status="GENERATED"):
     """
-    Slaat de gegenereerde testcode op in de database via de HBO-ICT API.
+    Slaat de testcode op in de database via de API.
+    Voegt ook de huidge tijd toe.
 
     Args:
-        generated_code (str): inhoud van het gegenereerde .py bestand
-        status         (str): status van de test, standaard GENERATED
+        generated_code (str): de gegenereerde testcode
+        status         (str): status van de test (standaard "GENERATED")
 
     Returns:
-        int: het insert ID van de nieuwe rij
+        int: het ID van de opgeslagen rij in de database
     """
     url      = os.getenv("API_URL") + "/db"
     api_key  = os.getenv("API_KEY")

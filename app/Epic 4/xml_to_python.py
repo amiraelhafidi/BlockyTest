@@ -1,28 +1,21 @@
 # xml_to_python.py
-# Doel: leest een Blockly XML bestand en genereert een Python testbestand
-#       en slaat het resultaat op in de database
+# Doel: leest een Blockly XML bestand en genereert een Python testbestand en slaat het resultaat op in de database
 
 import xml.etree.ElementTree as ET
 import os
-import requests
-from dotenv import load_dotenv
-from datetime import datetime
 
-# Laad .env vanuit de projectroot
-load_dotenv(os.path.join(os.path.dirname(__file__), "../../.env"))
-
-BLOCKLY_NAMESPACE = "https://developers.google.com/blockly/xml"
+BLOCKLY_NAMESPACE =  "https://developers.google.com/blockly/xml"
 
 
 def load_xml(file_path):
     """
-    Opent het XML bestand en geeft het root element terug.
+    Leest het XML bestand en geeft het root element terug.
 
     Args:
-        file_path (str): pad naar het .xml bestand
+        file_path (str): pad naar het XML bestand
 
     Returns:
-        Element: het buitenste XML element
+        Element: het buitenste element van het XML bestand
     """
     tree = ET.parse(file_path)
     return tree.getroot()
@@ -30,13 +23,13 @@ def load_xml(file_path):
 
 def block_to_python(block):
     """
-    Vertaalt één Blockly blok naar één Python code regel.
+    Zet één blok om naar een regel Python code.
 
     Args:
-        block (Element): één XML <block> element
+        block (Element): één <block> element uit het XML
 
     Returns:
-        str: één Python code regel, of None als het bloktype onbekend is
+        str: Python code regel, of None als het bloktype niet bekend is
     """
     block_type = block.get("type")
 
@@ -73,19 +66,18 @@ def block_to_python(block):
         return f'        assert driver.find_element(By.CSS_SELECTOR, "{selector}").text == "{expected_text}"'
 
     else:
-        print(f"  [WAARSCHUWING] Onbekend bloktype: '{block_type}'")
         return None
 
 
 def parse_blocks(root):
     """
-    Loopt door alle blokken in de XML boom en vertaalt ze naar Python regels.
+    Gaat alle blokken langs en zet ze om naar Python code.
 
     Args:
-        root (Element): het root XML element van load_xml()
+        root (Element): het root XML element (van load_xml())
 
     Returns:
-        list[str]: lijst van Python code regels
+        list[str]: lijst met Python code regels
     """
     code_lines = []
 
@@ -99,14 +91,16 @@ def parse_blocks(root):
 
 def write_python_test(code_lines, output_path):
     """
-    Schrijft de gegenereerde code regels weg als een compleet Python testbestand.
+    Maakt een compleet testbestand. 
+    Voegt de code regels toe.
+    Slaat het bestand op.
 
     Args:
-        code_lines  (list[str]): Python regels van parse_blocks()
-        output_path (str):       waar het .py bestand opgeslagen wordt
+        code_lines  (list[str]): Python regels uit parse_blocks()
+        output_path (str):       waar het bestand moet worden opgeslagen
 
     Returns:
-        None
+        str: de volledige gegenereerde testcode
     """
     header = """\
 import pytest
@@ -136,7 +130,7 @@ def test_generated():
     with open(output_path, "w") as output_file:
         output_file.write(full_code)
 
-    print(f"[OK] Testbestand aangemaakt: {output_path}")
+    return full_code
 
 
 if __name__ == "__main__":
@@ -147,10 +141,6 @@ if __name__ == "__main__":
 
     xml_root     = load_xml(input_xml_path)
     python_lines = parse_blocks(xml_root)
-    write_python_test(python_lines, output_py_path)
+    generated_code = write_python_test(python_lines, output_py_path)
 
-    with open(output_py_path, "r") as f:
-        generated_code = f.read()
-
-    insert_id = save_test_result(generated_code)
-    print(f"[OK] Opgeslagen in database met ID: {insert_id}")
+    save_test_result(generated_code)
