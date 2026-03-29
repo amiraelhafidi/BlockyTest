@@ -5,11 +5,12 @@
     <link rel = "stylesheet" href = "{{ url_for('static', filename='css/projects.css') }}">
 </head>
 <body>
-    <header> 
-        <h1> BlockyTest </h1> 
+    <h1> BlockyTest </h1>
+    <header class="nav_bar">
+        <img src="{{ url_for('static', filename='img/WSlogo.png') }}" alt="WailSalutem Foundation" class="header_logo">
     </header>
     <main>
-     <div class = "top_bar">
+        <div class = "top_bar">
         <h2> Mijn projecten </h2>
         <a href = "/add" class= "add_button"> + </a>
      </div>
@@ -18,12 +19,14 @@
         <div class = "grid"> 
             {% for project in projects %} 
                 <div class ="card">
-                    <p>{{ project.name }} </p>
+                    <p class="project_name">{{ project.name }} </p>
+                    <p class="project_description">{{ project['description'] }}</p>
+
                 </div>
             {% endfor %}
         </div>
         {% else %} 
-            <p> Er zijn nog geen projecten toegevoegd. </p>
+            <p> Er zijn nog geen projecten toegevoegd. Klik op '+'om een project toe te voegen. </p>
         {% endif %}
   </main>
 </body>

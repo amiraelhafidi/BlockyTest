@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, request, redirect, url_for
 from app.db import execute_query
 from app.Overzichtspagina import bp
 
@@ -10,7 +10,7 @@ def overview():
     query = "SELECT * FROM projects"
     result = execute_query(query)
 
-    projects = result.get("data", [])
+    projects = result if isinstance(result, list) else []
 
     return render_template('projects.html', projects=projects)
 
@@ -25,8 +25,21 @@ def project_detail(id):
 
 @bp.route('/add', methods=['GET', 'POST'])
 def add_project():
-    """
-    Add a project to the database.
-    """
-    return "Add project page"
+    if request.method == 'POST':
+        # heeft gebruiker iets ingevuld?
+        name = request.form.get('name')
+        description = request.form.get('description')
+        if not name:
+            return "Projectnaam is verplicht."
+
+        query = "INSERT INTO projects (name, description) VALUES (?, ?)"
+        result = execute_query(query, [name, description])
+
+        if isinstance(result, dict) and result.get("error"):
+            return f"Databasefout: {result['error']}"
+
+        return redirect(url_for('projects.overview'))
+    # doe iets daarna
+
+    return render_template('add_project.html')
 
