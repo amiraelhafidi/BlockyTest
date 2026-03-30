@@ -4,8 +4,6 @@
 import xml.etree.ElementTree as ET
 import os
 
-BLOCKLY_NAMESPACE =  "https://developers.google.com/blockly/xml"
-
 
 def load_xml(file_path):
     """
@@ -35,8 +33,10 @@ def block_to_python(block):
 
     def get_field(field_name):
         """Haalt de tekstwaarde op van een <field> element binnen dit blok."""
-        field = block.find(f"{{{BLOCKLY_NAMESPACE}}}field[@name='{field_name}']")
-        return field.text if field is not None else ""
+        for field in block.findall("field"):
+            if field.get("name") == field_name:
+                return field.text if field.text else ""
+        return ""
 
     if block_type == "open_browser":
         url = get_field("URL")
@@ -81,7 +81,7 @@ def parse_blocks(root):
     """
     code_lines = []
 
-    for block in root.iter(f"{{{BLOCKLY_NAMESPACE}}}block"):
+    for block in root.iter("block"):
         python_line = block_to_python(block)
         if python_line is not None:
             code_lines.append(python_line)
@@ -103,15 +103,7 @@ def write_python_test(code_lines, output_path):
         str: de volledige gegenereerde testcode
     """
     header = """\
-import pytest
 import time
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-
-
-def test_generated():
-    driver = webdriver.Chrome()
-    driver.implicitly_wait(5)
 
     try:
 """

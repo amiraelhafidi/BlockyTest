@@ -1,4 +1,4 @@
-<xml xmlns="https://developers.google.com/blockly/xml">
+<xml>
   <block type="open_browser">
     <field name="URL">https://www.hva.nl</field>
     <next>

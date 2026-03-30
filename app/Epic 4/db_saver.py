@@ -26,7 +26,7 @@ def save_test_result(generated_code, status="GENERATED"):
     api_key  = os.getenv("API_KEY")
     database = os.getenv("DATABASE")
 
-    query  = "INSERT INTO testresult (generated_code, status, created_at) VALUES (?, ?, ?)"
+    query  = "INSERT INTO testflow (generated_code, status, created_at) VALUES (?, ?, ?)"
     values = (generated_code, status, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
     response = requests.post(
