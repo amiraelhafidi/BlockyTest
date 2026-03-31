@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Blockly</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/blockly.css') }}">
+
+    
+</head>
+<script src="https://unpkg.com/blockly/blockly.min.js"></script>
+<body>
+
+<!--
+This header section represents the top navigation area of the page.
+It contains a left-aligned container that holds the company logo.-->
+<header class="header">
+    <div class="header-left">
+        <img src="{{ url_for('static', filename='img/Wail-Salutem-foundation-logo.webp') }}" alt="Logo" class="logo">
+    </div>
+
+    <div class="header-right">
+        <button class="btn">Wis Alles</button>
+        <button class="btn primary">▶ Start</button>
+        <button type="button" class="btn" onclick="saveWorkspace()">Opslaan</button>
+        <button type="button" class="btn" onclick="loadWorkspace()">Laden</button>
+    </div>
+</header>
+
+<!-- Title of the page -->
+<h1>Blokken</h1>
+
+<div class="container">
+    <div class="workspace">
+        <div class="workspace-label">Sleep een blok hierheen...</div>
+        <div id="blocklyDiv"></div>
+    </div>
+</div>
+
+
+<!-- xml toegevoegd voor de lijst met blokken, xml is also needed to store and transfer block data. -->
+<xml id="toolbox" >
+    <block type="controls_if"></block>
+    <block type="logic_compare"></block>
+    <block type="math_number"></block>
+    <block type="text"></block>
+</xml>
+
+<!-- JavaScript that initializes Blockly.
+Blockly.inject() places the Blockly workspace in the div
+with id "blocklyDiv" and attaches the toolbox to the interface -->
+<script>
+    Blockly.inject('blocklyDiv', {
+        toolbox: document.getElementById('toolbox')
+    });
+
+
+</script>
+
+<!--  Saves the current Blockly workspace by converting it to XML
+and sending it to the backend via a POST request. -->
+<script>
+function saveWorkspace() {
+    const workspace = Blockly.getMainWorkspace();
+    const xml = Blockly.Xml.workspaceToDom(workspace);
+    const xmlText = Blockly.Xml.domToText(xml);
+
+    fetch('/blockly/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspace_xml: xmlText })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+        alert(JSON.stringify(data));
+    });
+}
+</script>
+
+<!--  Loads a saved Blockly workspace from the backend
+and restores it into the current workspace. -->
+<script>
+function loadWorkspace() {
+    fetch('/blockly/load')
+        .then(res => res.json())
+        .then(data => {
+            if (data.workspace_xml) {
+                const workspace = Blockly.getMainWorkspace();
+                workspace.clear();
+
+                const xml = Blockly.utils.xml.textToDom(data.workspace_xml);
+                Blockly.Xml.domToWorkspace(xml, workspace);
+            } else {
+                alert("Geen opgeslagen workspace gevonden.");
+            }
+        });
+}
+</script>
+
+
+</body>
+</html>
+
+
