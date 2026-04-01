@@ -18,3 +18,4 @@ def execute_query(query, values=None):
         timeout=10,
     )
     return x.json()
+
