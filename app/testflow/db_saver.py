@@ -13,7 +13,7 @@ load_dotenv(os.path.join(os.path.dirname(__file__), "../../.env"))
 def save_test_result(generated_code, status="GENERATED"):
     """
     Slaat de testcode op in de database via de API.
-    Voegt ook de huidge tijd toe.
+    Voegt ook de huidige tijd toe.
 
     Args:
         generated_code (str): de gegenereerde testcode
