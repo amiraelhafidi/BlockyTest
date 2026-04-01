@@ -1,0 +1,23 @@
+<xml>
+  <block type="open_browser">
+    <field name="URL">https://www.hva.nl</field>
+    <next>
+      <block type="maximize_window">
+        <next>
+          <block type="wait_seconds">
+            <field name="SECONDS">3</field>
+            <next>
+              <block type="assert_title">
+                <field name="EXPECTED_TITLE">HvA</field>
+                <next>
+                  <block type="close_browser">
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>
