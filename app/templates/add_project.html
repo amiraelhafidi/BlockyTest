@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/projects.css') }}">
+        <title> Nieuw project
+        </title>
+    </head>
+    <body> 
+        <h1> Nieuw project toevoegen </h1>
+
+        <form method = "POST"> 
+        <label for = "name"> Projectnaam: </label>
+        <input type = "text" id = "name" name = "name" required>
+
+        <br> <br>
+
+        <label for="description"> Beschrijving: </label>
+        <textarea id="description" name="description"></textarea>
+
+        <br> <br>
+        <button type="submit" class="go_back">Toevoegen</button>
+        <a href="{{ url_for('projects.overview') }}" class="go_back">Terug naar overzicht</a>
+        </form>
+    </body>
+</html>
