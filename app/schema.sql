@@ -12,3 +12,37 @@ CREATE TABLE `projects`(
     `description` TEXT,
     PRIMARY KEY(`id`)
 );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
