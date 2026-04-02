@@ -4,7 +4,6 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(50),
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id)
 );
@@ -17,19 +16,20 @@ CREATE TABLE testflow (
     status VARCHAR(50),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (testflow_id)
+    PRIMARY KEY (testflow_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
 CREATE TABLE block (
     block_id INT NOT NULL AUTO_INCREMENT,
     testflow_id INT NOT NULL,
     block_type VARCHAR(100) NOT NULL,
-    label VARCHAR(255),
     position_x INT,
     position_y INT,
     sequence_number INT,
     config_json TEXT,
-    PRIMARY KEY (block_id)
+    PRIMARY KEY (block_id),
+    FOREIGN KEY (testflow_id) REFERENCES testflow(testflow_id)
 );
 
 CREATE TABLE generatedfile (
@@ -38,27 +38,30 @@ CREATE TABLE generatedfile (
     file_type VARCHAR(50) NOT NULL,
     file_path VARCHAR(255) NOT NULL,
     generated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (generatedfile_id)
+    PRIMARY KEY (generatedfile_id),
+    FOREIGN KEY (testflow_id) REFERENCES testflow(testflow_id)
 );
 
 CREATE TABLE testrun (
     testrun_id INT NOT NULL AUTO_INCREMENT,
     testflow_id INT NOT NULL,
     generatedfile_id INT,
-    started_by INT NOT NULL,
     started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     finished_at DATETIME,
     status VARCHAR(50),
-    PRIMARY KEY (testrun_id)
+    PRIMARY KEY (testrun_id),
+    FOREIGN KEY (testflow_id) REFERENCES testflow(testflow_id),
+    FOREIGN KEY (generatedfile_id) REFERENCES generatedfile(generatedfile_id)
 );
 
 CREATE TABLE testreport (
     report_id INT NOT NULL AUTO_INCREMENT,
     testrun_id INT NOT NULL,
     summary TEXT,
-    passed_count INT DEFAULT 0,
-    failed_count INT DEFAULT 0,
+    passed_count INT,
+    failed_count INT,
     report_path VARCHAR(255),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (report_id)
+    PRIMARY KEY (report_id),
+    FOREIGN KEY (testrun_id) REFERENCES testrun(testrun_id)
 );

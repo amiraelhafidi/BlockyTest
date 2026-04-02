@@ -7,7 +7,7 @@ def overview():
     """
     Show an overview of all projects.
     """
-    query = "SELECT * FROM projects"
+    query = "SELECT * FROM testflow"
     result = execute_query(query)
 
     projects = result if isinstance(result, list) else []
@@ -32,9 +32,8 @@ def add_project():
         if not name:
             return "Projectnaam is verplicht."
 
-        query = "INSERT INTO projects (name, description) VALUES (?, ?)"
-        result = execute_query(query, [name, description])
-
+        query = "INSERT INTO testflow (flow_name, flow_description) VALUES (%s, %s)"
+        result = execute_query(query, [name, description, "nieuw", 1])
         if isinstance(result, dict) and result.get("error"):
             return f"Databasefout: {result['error']}"
 
