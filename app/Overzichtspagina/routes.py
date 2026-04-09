@@ -7,7 +7,7 @@ def overview():
     """
     Show an overview of all projects.
     """
-    query = "SELECT * FROM testflow"
+    query = "SELECT * FROM testflow ORDER BY created_at DESC"
     result = execute_query(query)
 
     projects = result if isinstance(result, list) else []
@@ -32,13 +32,13 @@ def add_project():
         if not name:
             return "Projectnaam is verplicht."
 
-        query = "INSERT INTO testflow (flow_name, flow_description) VALUES (%s, %s)"
-        result = execute_query(query, [name, description, "nieuw", 1])
-        if isinstance(result, dict) and result.get("error"):
-            return f"Databasefout: {result['error']}"
+        # user_id is verplicht in schema.sql, gebruik tijdelijk user 1
+        query = "INSERT INTO testflow (name, description, user_id, status) VALUES (?, ?, ?, ?)"
+        result = execute_query(query, [name, description, 1, "nieuw"])
+        if isinstance(result, dict) and (result.get("error") or result.get("reason")):
+            return f"Databasefout: {result.get('error') or result.get('reason')}"
 
         return redirect(url_for('projects.overview'))
     # doe iets daarna
 
     return render_template('add_project.html')
-
