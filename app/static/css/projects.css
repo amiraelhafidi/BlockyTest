@@ -16,8 +16,25 @@ font-size: 40px;}
 
 .nav_bar {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
+}
+
+.logo_text {
+    margin: 0;
+    font-size: 48px;
+    color: white;
+}
+
+.header_logo {
+    width: 200px;
+    height: auto;
+}
+
+.projects_box {
+    border: 2px solid white;
+    padding: 20px;
+    margin-top: 40px;
 }
 
 .top_bar{ color: rgb(255, 255, 255);
@@ -40,8 +57,7 @@ font-size: 40px;}
     justify-content: center;
     text-decoration: none;
     color: rgb(255, 255, 255);
-
-        }
+} 
 
 .grid {display: flex;
     flex-wrap: wrap;
