@@ -62,3 +62,45 @@ CREATE TABLE testreport (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (report_id)
 );
+
+CREATE TABLE `projects`(
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `description` TEXT,
+    PRIMARY KEY(`id`)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> main
