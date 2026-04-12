@@ -3,12 +3,15 @@ body {margin: 0;
     font-family: Arial, sans-serif; 
     color: white;}
 
-.nav_bar {
-    display: flex;
+.nav_bar {display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 25px 50px;
-    border-bottom: 2px solid white;}
+
+    padding: 15px 25px;
+
+    background: linear-gradient(to right, #a855f7, #ec4899);
+    border-bottom: 5px solid black;
+}
 
 /* BlockyTest*/
 .logo_text {
@@ -144,7 +147,7 @@ textarea {
     resize: vertical;
 }
 
-/* BUTTONS */
+/* knoppen */
 
 .form_buttons {
     display: flex;

@@ -23,10 +23,12 @@
         {% if projects %} 
             <div class="grid"> 
                 {% for project in projects %} 
-                    <div class="card">
-                        <p class="project_name">{{ project.name }}</p>
-                        <p class="project_description">{{ project.description }}</p>
-                    </div>
+                    <a href="{{ url_for('blockly.editor', project_id=project.testflow_id) }}" style="text-decoration: none; color: inherit;">
+                        <div class="card">
+                            <p class="project_name">{{ project.name }}</p>
+                            <p class="project_description">{{ project.description }}</p>
+                        </div>
+                    </a>
                 {% endfor %}
             </div>
                 </div>

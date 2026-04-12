@@ -21,7 +21,7 @@
     </div>
 </header>
 
-<h1>Blocks</h1>
+<h1>{% if project_name %}{{ project_name }}{% else %}Blokken{% endif %}</h1>
 <div class="container">
     <div class="workspace">
         <div id="blocklyDiv"></div>

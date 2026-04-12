@@ -32,6 +32,13 @@ CREATE TABLE block (
     FOREIGN KEY (testflow_id) REFERENCES testflow(testflow_id)
 );
 
+CREATE TABLE blockly_project (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    project_name VARCHAR(255) NULL,
+    workspace_xml LONGTEXT NULL,
+    PRIMARY KEY (id)
+);
+
 CREATE TABLE generatedfile (
     generatedfile_id INT NOT NULL AUTO_INCREMENT,
     testflow_id INT NOT NULL,
