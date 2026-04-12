@@ -11,20 +11,24 @@
     </header>
 
     <main>
-        <div class="projects_box">
-            <div class="top_bar">
-                <h2>Mijn projecten</h2>
-                <a href="/add" class="add_button">+</a>
-            </div>
 
-            {% if projects %} 
-                <div class="grid"> 
-                    {% for project in projects %} 
-                        <div class="card">
-                            <p class="project_name">{{ project.name }}</p>
-                            <p class="project_description">{{ project.description }}</p>
-                        </div>
-                    {% endfor %}
+ <!-- BOVENSTE BALK -->
+    <div class="projects_header">
+        <h2>Mijn projecten</h2>
+        <a href="{{ url_for('projects.add_project') }}" class="add_button">+</a>
+    </div>
+
+    <!-- BOX MET CARDS -->
+    <div class="projects_box">
+        {% if projects %} 
+            <div class="grid"> 
+                {% for project in projects %} 
+                    <div class="card">
+                        <p class="project_name">{{ project.name }}</p>
+                        <p class="project_description">{{ project.description }}</p>
+                    </div>
+                {% endfor %}
+            </div>
                 </div>
             {% else %} 
                 <p>Er zijn nog geen projecten toegevoegd. Klik op '+' om een project toe te voegen.</p>
