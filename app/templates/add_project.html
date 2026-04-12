@@ -1,23 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Add Project</title>
+    <title>Nieuw project</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/projects.css') }}">
 </head>
-<body> 
-    <h1>Add New Project</h1>
+<body>
 
-    <form method="POST"> 
-        <label for="name">Project Name:</label>
-        <input type="text" id="name" name="name" required>
-        <br><br>
+<header class="nav_bar">
+    <h1 class="logo_text">BlockyTest</h1>
+    <img src="{{ url_for('static', filename='img/image.png') }}" alt="Logo" class="header_logo">
+</header>
 
-        <label for="description">Description:</label>
-        <textarea id="description" name="description"></textarea>
-        <br><br>
+<div class="form_page">
+    <div class="form_box">
+        <h2 class="form_title">Nieuw project toevoegen</h2>
 
-        <button type="submit" class="btn">Add</button>
-        <a href="{{ url_for('projects.overview') }}" class="btn">Cancel</a>
-    </form>
+        <form method="POST">
+            <label for="name">Projectnaam:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="description">Beschrijving:</label>
+            <textarea id="description" name="description"></textarea>
+
+            <div class="form_buttons">
+                <button type="submit">Project aanmaken</button>
+                <a href="{{ url_for('projects.overview') }}" class="go_back">Annuleren</a>
+            </div>
+        </form>
+    </div>
+</div>
+
 </body>
 </html>

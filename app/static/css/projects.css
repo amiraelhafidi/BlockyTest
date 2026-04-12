@@ -19,12 +19,12 @@ body {margin: 0;
 .header_logo {
     width: 180px;
     height: auto;}
-/* MAIN LAYOUT */
+
 main {
     width: 85%;
     margin: 60px auto;}
 
-/* PROJECTEN BLOK */
+
 .projects_box {
     border: 2px solid white;
     padding: 40px;
