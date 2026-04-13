@@ -1,7 +1,6 @@
 body {margin: 0;
-    background-color: rgb(79, 99, 177);
-    font-family: Arial, sans-serif; 
-    color: white;}
+    background-color: rgb(255, 255, 255);
+    font-family: Arial, sans-serif; }
 
 .nav_bar {display: flex;
     justify-content: space-between;
@@ -16,20 +15,24 @@ body {margin: 0;
 /* BlockyTest*/
 .logo_text {
     margin: 0;
-    font-size: 67px;}
+    font-size: 67px;
+    color: rgb(0, 0, 0);}
 
 /* Wailsalutem foto*/
 .header_logo {
     width: 180px;
     height: auto;}
 
+/* de box met card erin en de naam 'projecten' */
+
 main {
     width: 85%;
-    margin: 60px auto;}
+    margin: 60px auto;
+    }
 
-
+/* projecten box randje) */
 .projects_box {
-    border: 2px solid white;
+    border: 2px solid rgb(0, 0, 0);
     padding: 40px;
     min-height: 350px;
     box-sizing: border-box;}
@@ -41,21 +44,22 @@ main {
     align-items: center;
     padding-bottom: 15px;
     margin-bottom: 25px;
-    border-bottom: 2px solid white;
+    border-bottom: 2px solid rgb(0, 0, 0);
 }
 
 .projects_header h2 {
     margin: 0;
-    font-size: 150px;
+    font-size: 67px;
+    color: rgb(0, 0, 0);
 }
 
-/* duwt de knop naar rechts */
+/* duwt de plus knop naar rechts */
 .add_button {
     margin-left: auto;
     width: 55px;
     height: 55px;
-    border: 2px solid white;
-    color: white;
+    border: 2px solid rgb(0, 0, 0);
+    color: rgb(0, 0, 0);
     text-decoration: none;
     font-size: 36px;
     font-weight: bold;
@@ -65,26 +69,27 @@ main {
     box-sizing: border-box;
 }
 
-/* GRID + CARDS */
-
+/* tekst in de kaart */
 .grid {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+    color: rgb(0, 0, 0);
 }
 
+/* lijn om de card heen op projectenpagina */
 .card {
     width: 200px;
     min-height: 140px;
     padding: 12px;
-    border: 2px solid white;
+    border: 2px solid rgb(0, 0, 0);
     display: flex;
     flex-direction: column;
     gap: 8px;
     box-sizing: border-box;
 }
 
-/* TEKST IN CARDS */
+/* Tekst in cards op projectenpagina */
 
 .project_name {
     margin: 0;
@@ -103,15 +108,17 @@ main {
     word-break: break-word;
 }
 
-/* FORMULIER PAGINA */
+/* Add pagina */
 
 .form_page {
     width: 70%;
     margin: 60px auto;
 }
 
+/* box op add pagina */
+
 .form_box {
-    border: 2px solid white;
+    border: 2px solid rgb(0, 0, 0);
     padding: 30px;
     box-sizing: border-box;
 }
@@ -119,6 +126,7 @@ main {
 .form_title {
     margin: 0 0 30px 0;
     font-size: 32px;
+    color: rgb(0, 0, 0);
 }
 
 /* LABELS */
@@ -129,7 +137,7 @@ label {
     font-size: 20px;
 }
 
-/* INPUTS */
+/* Input velden */
 
 input[type="text"],
 textarea {
@@ -137,9 +145,10 @@ textarea {
     font-size: 16px;
     padding: 14px;
     margin-bottom: 20px;
-
     border: none;
     box-sizing: border-box;
+    background-color:#c1c2eb;
+;
 }
 
 textarea {
@@ -159,9 +168,10 @@ button,
 .go_back {
     padding: 10px 18px;
     font-size: 16px;
-    background-color: white;
-    color: rgb(79, 99, 177);
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
     text-decoration: none;
     border: none;
     cursor: pointer;
+    
 }
