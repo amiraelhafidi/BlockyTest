@@ -14,6 +14,11 @@
         <img src="{{ url_for('static', filename='img/Wail-Salutem-foundation-logo.webp') }}" alt="Logo" class="logo">
     </div>
     <div class="header-right">
+        <button type="button" class="btn" onclick="clearWorkspace()">Wis Alles</button>
+        <button class="btn primary">▶ Start</button>
+        <button type="button" class="btn" onclick="saveWorkspace()">Opslaan</button>
+        <button type="button" class="btn" onclick="loadWorkspace()">Laden</button>
+
         <a href="{{ url_for('projects.overview') }}" class="btn">Projects</a>
         <button class="btn" onclick="Blockly.getMainWorkspace().clear()">Clear</button>
         <button class="btn primary" onclick="runTest()">▶ Run</button>
@@ -76,11 +81,39 @@ function runTest() {
 }
 </script>
 
+<!--  Javascript which clears the Blockly workspace, but also saves it in the database if wanted. -->
+<script>
+function clearWorkspace() {
+    const confirmed = confirm("Weet je zeker dat je alle blokken wilt verwijderen?");
+
+    if (!confirmed) {
+        return;
+    }
+
+    const workspace = Blockly.getMainWorkspace();
+    workspace.clear();
+
+    const xml = Blockly.Xml.workspaceToDom(workspace);
+    const xmlText = Blockly.Xml.domToText(xml);
+
+    fetch('/blockly/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspace_xml: xmlText })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);
+        alert("Alle blokken zijn verwijderd en opgeslagen.");
+    })
+    .catch(error => {
+        console.error(error);
+        alert("De workspace is gewist, maar opslaan is mislukt.");
+    });
+}
+</script>
 </body>
 </html>
 
-
-</body>
-</html>
 
 

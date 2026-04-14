@@ -69,6 +69,12 @@ CREATE TABLE testreport (
     failed_count INT,
     report_path VARCHAR(255),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (report_id),
-    FOREIGN KEY (testrun_id) REFERENCES testrun(testrun_id)
+    PRIMARY KEY (report_id)
+);
+
+CREATE TABLE `projects`(
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `description` TEXT,
+    PRIMARY KEY(`id`)
 );
