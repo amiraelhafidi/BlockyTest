@@ -17,7 +17,7 @@ pages:
   before_script:
   - time apt update && apt-get install -y git
   - time pip install --upgrade pip
-  - time pip install -r requirements.txt
+  - time pip install -r docs/requirements.txt
   - time git clone https://uva-hva.gitlab.host/hbo-ict/mdocotion.git mdocotion
   - time cd mdocotion && python setup.py install && cd ..
   script:

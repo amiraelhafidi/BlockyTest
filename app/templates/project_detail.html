@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head> 
+    <title>{{ project.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/projects.css') }}">
+</head>
+<body>
+<header class="nav_bar">
+    <h1 class="logo_text">BlockyTest</h1>
+    <img src="{{ url_for('static', filename='img/image.png') }}" alt="Logo" class="header_logo">
+</header>
+
+<main>
+    <div class="projects_box">
+        <h2>{{ project.name }}</h2>
+        <p><strong>Status:</strong> {{ project.status }}</p>
+        <p><strong>Description:</strong> {{ project.description }}</p>
+        <p><strong>Created:</strong> {{ project.created_at }}</p>
+        <a href="{{ url_for('blockly.editor') }}" class="btn primary">Edit</a>
+        <a href="{{ url_for('projects.overview') }}" class="btn">Back</a>
+    </div>
+</main>
+
+</body>
+</html>

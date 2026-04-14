@@ -1,33 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head> 
-    <title>BlockyTest</title>
-    <link rel = "stylesheet" href = "{{ url_for('static', filename='css/projects.css') }}">
+    <title>Projects</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/projects.css') }}">
 </head>
 <body>
-    <h1> BlockyTest </h1>
-    <header class="nav_bar">
-        <img src="{{ url_for('static', filename='img/image.png') }}" alt="WailSalutem Foundation" class="header_logo">
-    </header>
+<header class="nav_bar">
+    <h1 class="logo_text">BlockyTest</h1>
+    <img src="{{ url_for('static', filename='img/image.png') }}" alt="Logo" class="header_logo">
+</header>
+
     <main>
-        <div class = "top_bar">
-        <h2> Mijn projecten </h2>
-        <a href = "/add" class= "add_button"> + </a>
-     </div>
 
-     {% if projects %} 
-        <div class = "grid"> 
-            {% for project in projects %} 
-                <div class ="card">
-                    <p class="project_name">{{ project.name }} </p>
-                    <p class="project_description">{{ project['description'] }}</p>
+ <!-- BOVENSTE BALK -->
+    <div class="projects_header">
+        <h2>Mijn projecten</h2>
+        <a href="{{ url_for('projects.add_project') }}" class="add_button">+</a>
+    </div>
 
+    <!-- BOX MET CARDS -->
+    <div class="projects_box">
+        {% if projects %} 
+            <div class="grid"> 
+                {% for project in projects %} 
+                    <a href="{{ url_for('blockly.editor', project_id=project.testflow_id) }}" style="text-decoration: none; color: inherit;">
+                        <div class="card">
+                            <p class="project_name">{{ project.name }}</p>
+                            <p class="project_description">{{ project.description }}</p>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
                 </div>
-            {% endfor %}
+            {% else %} 
+                <p>Er zijn nog geen projecten toegevoegd. Klik op '+' om een project toe te voegen.</p>
+            {% endif %}
         </div>
-        {% else %} 
-            <p> Er zijn nog geen projecten toegevoegd. Klik op '+'om een project toe te voegen. </p>
-        {% endif %}
-  </main>
+    </main>
+
 </body>
 </html>
+
