@@ -12,18 +12,14 @@
 <header class="header">
     <div class="header-left">
         <img src="{{ url_for('static', filename='img/Wail-Salutem-foundation-logo.webp') }}" alt="Logo" class="logo">
+        <h2 class="app-title">BlockyTest</h2>
     </div>
     <div class="header-right">
-        <button type="button" class="btn" onclick="clearWorkspace()">Wis Alles</button>
-        <button class="btn primary">▶ Start</button>
-        <button type="button" class="btn" onclick="saveWorkspace()">Opslaan</button>
-        <button type="button" class="btn" onclick="loadWorkspace()">Laden</button>
-
-        <a href="{{ url_for('projects.overview') }}" class="btn">Projects</a>
-        <button class="btn" onclick="Blockly.getMainWorkspace().clear()">Clear</button>
-        <button class="btn primary" onclick="runTest()">▶ Run</button>
-        <button class="btn" onclick="saveWorkspace()">Save</button>
-        <button class="btn" onclick="loadWorkspace()">Load</button>
+        <button type="button" class="header-btn" onclick="saveWorkspace()">Opslaan</button>
+        <button type="button" class="header-btn" onclick="loadWorkspace()">Laden</button>
+        <button type="button" class="header-btn">Keywords</button>
+        <button type="button" class="header-btn">Run</button>
+        <button type="button" class="header-btn">Export</button>
     </div>
 </header>
 
@@ -32,9 +28,17 @@
     <div class="workspace">
         <div id="blocklyDiv"></div>
     </div>
-    <div id="code-panel">
-        <b>Generated Python code:</b>
-        <textarea id="pythonCode" readonly style="width:100%; height:650px; font-family:monospace; font-size:13px; background:#1e1e2e; color:#cdd6f4; border:none; padding:12px; margin-top:8px; box-sizing:border-box;"></textarea>
+    <div class="right-panel">
+        <div id="code-panel">
+            <b>Gegenereerde code:</b>
+            <textarea id="pythonCode" readonly></textarea>
+        </div>
+        <div id="results-panel">
+            <b>Test resultaten</b>
+            <div id="testResults">
+                <p>Klik op "Run" om de test uit te voeren</p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -76,9 +80,6 @@ function loadWorkspace() {
         });
 }
 
-function runTest() {
-    alert("Run test functionality - connect to Robot Framework");
-}
 </script>
 
 <!--  Javascript which clears the Blockly workspace, but also saves it in the database if wanted. -->
