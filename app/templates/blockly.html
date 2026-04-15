@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blockly Editor</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/blockly.css') }}">
 </head>
@@ -18,7 +19,7 @@
         <button type="button" class="header-btn" onclick="saveWorkspace()">Opslaan</button>
         <button type="button" class="header-btn" onclick="loadWorkspace()">Laden</button>
         <button type="button" class="header-btn">Keywords</button>
-        <button type="button" class="header-btn">Run</button>
+        <button type="button" class="header-btn" onclick="runTest()">Run</button>
         <button type="button" class="header-btn">Export</button>
     </div>
 </header>
@@ -78,6 +79,38 @@ function loadWorkspace() {
                 Blockly.Xml.domToWorkspace(xml, Blockly.getMainWorkspace());
             }
         });
+}
+
+function runTest() {
+    const xml = Blockly.Xml.workspaceToDom(workspace);
+    const xmlText = Blockly.Xml.domToText(xml);
+    
+    document.getElementById('testResults').innerHTML = '<p>Test loopt...</p>';
+    
+    fetch('/blockly/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspace_xml: xmlText })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.fout) {
+            document.getElementById('testResults').innerHTML = `<p style="color: red;">Fout: ${data.fout}</p>`;
+        } else {
+            const statusColor = data.gefaald === 0 ? 'green' : 'red';
+            const statusText = data.gefaald === 0 ? 'GESLAAGD' : 'GEFAALD';
+            const html = `
+                <p style="font-size: 16px; color: ${statusColor}; font-weight: bold;">${statusText}</p>
+                <p style="margin: 8px 0;">Geslaagd: <strong>${data.geslaagd}</strong></p>
+                <p style="margin: 8px 0;">Gefaald: <strong>${data.gefaald}</strong></p>
+                <textarea readonly style="width: 100%; height: 120px; font-size: 11px; font-family: monospace; border: 1px solid #ddd; padding: 8px; resize: none;">${data.output}</textarea>
+            `;
+            document.getElementById('testResults').innerHTML = html;
+        }
+    })
+    .catch(e => {
+        document.getElementById('testResults').innerHTML = `<p style="color: red;">Fout: ${e.message}</p>`;
+    });
 }
 
 </script>
