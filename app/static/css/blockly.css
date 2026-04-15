@@ -9,21 +9,69 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 25px;
-    background-color: rgb(98, 113, 172);
-    border-bottom: 5px solid black;
+    padding: 12px 25px;
+    background-color: rgb(66, 120, 192);
+    border-bottom: 2px solid rgb(50, 100, 160);
+    gap: 20px;
 }
 
-/* LINKS */
 .header-left {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
+}
+
+.app-title {
+    margin: 0;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
 }
 
 .logo {
-    height: 80px;
+    height: 40px;
     width: auto;
+}
+
+.header-center {
+    flex: 1;
+    text-align: center;
+    color: white;
+    font-size: 13px;
+}
+
+.header-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.header-btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.header-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.header-btn.primary {
+    background: rgb(52, 168, 224);
+    border-color: rgb(52, 168, 224);
+}
+
+.header-btn.primary:hover {
+    background: rgb(40, 150, 200);
 }
 
 .title {
@@ -31,28 +79,31 @@ body {
     font-size: 20px;
 }
 
-/* RECHTS */
-.header-right {
-    display: flex;
-    gap: 20px;
-}
-
-.btn {
-    padding: 10px 20px;
-    border-radius: 10px;
-    border: 2.5px solid black;
+/* ICON BUTTONS */
+.btn-icon {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 2px solid black;
     background: white;
     cursor: pointer;
+    font-size: 16px;
     font-weight: bold;
+    width: fit-content;
+    align-self: flex-end;
 }
 
-.btn.primary {
+.btn-primary-icon {
     background: #6366f1;
     color: white;
 }
 
+h1 {
+    text-align: left;
+    padding-left: 280px;
+    margin-top: 20px;
+}
 
-
+/* LAYOUT: EDITOR + SIDE PANELS */
 
 .container {
     display: flex;
@@ -61,6 +112,17 @@ body {
     margin-top: 30px;
     padding: 0 20px;
 }
+
+.right-panel {
+    flex: 1;
+    min-width: 300px;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* CANVAS */
 
 .workspace {
     position: relative;
@@ -76,15 +138,6 @@ body {
     width: 100%;
 }
 
-#code-panel {
-    flex: 1;
-    min-width: 300px;
-    max-width: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
 .workspace-label {
     position: absolute;
     top: 2px;
@@ -92,8 +145,55 @@ body {
     color: #888;
 }
 
-h1 {
-    text-align: left;
-    padding-left: 280px;
-    margin-top: 20px;
+/* GEGENEREERDE CODE VLAK */
+
+#code-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#pythonCode {
+    width: 100%;
+    height: 350px;
+    font-family: monospace;
+    font-size: 13px;
+    background: #1e1e2e;
+    color: #cdd6f4;
+    border: none;
+    padding: 12px;
+    margin-top: 8px;
+    box-sizing: border-box;
+}
+
+/*  TEST RESULTATEN VLAK  */
+
+#results-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 2px solid #ddd;
+    padding-top: 15px;
+}
+
+#testResults {
+    width: 100%;
+    height: 280px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow-y: auto;
+    padding: 12px;
+    margin-top: 8px;
+    box-sizing: border-box;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+#testResults p {
+    color: #999;
+    text-align: center;
+    margin-top: 100px;
 }
