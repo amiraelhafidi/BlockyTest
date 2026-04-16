@@ -20,9 +20,8 @@
         <a href="{{ url_for('projects.overview') }}" class="header-btn">Mijn projecten</a>
         <button type="button" class="header-btn" onclick="saveWorkspace()">Opslaan</button>
         <button type="button" class="header-btn" onclick="loadWorkspace()">Laden</button>
-        <button type="button" class="header-btn">Keywords</button>
         <button type="button" class="header-btn" id="runBtn" onclick="runTest()">Run</button>
-        <button type="button" class="header-btn">Export</button>
+        <a href="{{ url_for('blockly.history') }}" class="header-btn" style="text-decoration: none;">History</a>
     </div>
 </header>
 
