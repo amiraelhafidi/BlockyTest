@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test History - BlockyTest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/blockly.css') }}">
+    <style>
+        body {
+            background-color: #f9f9f9;
+        }
+
+        .history-container {
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            color: #333;
+            margin: 20px 0 10px 0;
+            font-size: 28px;
+        }
+
+        .back-btn {
+            padding: 8px 16px;
+            background-color: #4278c0;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 1px solid #ddd;
+        }
+
+        thead {
+            background: #f5f5f5;
+        }
+
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .error {
+            color: #721c24;
+            padding: 12px 16px;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <img src="{{ url_for('static', filename='img/Wail-Salutem-foundation-logo.webp') }}" alt="Logo" class="logo">
+        <h2 class="app-title">BlockyTest</h2>
+    </div>
+    <div class="header-right">
+        <a href="{{ url_for('projects.overview') }}" class="header-btn">Mijn projecten</a>
+        <a href="{{ url_for('blockly.editor') }}" class="header-btn">Editor</a>
+    </div>
+</header>
+
+<div class="history-container">
+    <div class="page-header">
+        <h1>Test History</h1>
+    </div>
+
+    <a href="{{ url_for('blockly.editor') }}" class="back-btn">← Terug naar Editor</a>
+
+    {% if error %}
+    <div class="error">Fout: {{ error }}</div>
+    {% endif %}
+
+    {% if testruns %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Projectnaam</th>
+                    <th>Status</th>
+                    <th>Datum</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for run in testruns %}
+                <tr>
+                    <td>#{{ run.testrun_id }}</td>
+                    <td>{{ run.testflow_name or '—' }}</td>
+                    <td>{{ run.status }}</td>
+                    <td>
+                        {% if run.started_at %}
+                            {{ run.started_at[:10] }} {{ run.started_at[11:19] }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">
+            <p>Geen testruns gevonden</p>
+        </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

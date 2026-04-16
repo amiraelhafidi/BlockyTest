@@ -2,6 +2,7 @@ from flask import render_template, request, jsonify, Response
 from app.blockly import bp, create_testrun, update_testrun_result
 from app.db import execute_query
 from app.blockly.code_generator import xml_to_robot
+from app.db import execute_query
 import os
 import subprocess
 import tempfile
@@ -42,11 +43,18 @@ def execute_robot_test(robot_file: str, timeout: int = 60) -> dict:
         passed = result.stdout.count("| PASS |")
         failed = result.stdout.count("| FAIL |")
         
+        # Verwijder temp file paths uit output
+        output_lines = result.stdout.split('\n')
+        cleaned_output = '\n'.join([
+            line for line in output_lines 
+            if not any(keyword in line for keyword in ['Output:', 'Log:', 'Report:'])
+        ])
+        
         return {
             "return_code": result.returncode,
             "geslaagd": passed,
             "gefaald": failed,
-            "output": result.stdout + result.stderr,
+            "output": cleaned_output + result.stderr,
         }
 
 
@@ -147,3 +155,57 @@ def run():
         # Update testrun with error status
         update_testrun_result(testrun_id, "error", 0, 0)
         return jsonify({"fout": str(e)}), 500
+
+
+@bp.route("/history")
+def history():
+    """Laadt de testrun history pagina met alle vorige testruns"""
+    try:
+        # Haal alle testruns op
+        query = """SELECT 
+                    tr.testrun_id,
+                    tf.name as testflow_name,
+                    tr.status,
+                    tr.started_at
+                   FROM testrun tr
+                   LEFT JOIN testflow tf ON tr.testflow_id = tf.testflow_id
+                   ORDER BY tr.started_at DESC
+                   LIMIT 100"""
+        testruns = execute_query(query)
+        return render_template("testrun_history.html", testruns=testruns)
+    except Exception as e:
+        return render_template("testrun_history.html", testruns=[], error=str(e))
+
+
+@bp.route("/save", methods=["POST"])
+def save():
+    """Slaat de Blockly workspace op in database"""
+    try:
+        data = request.get_json()
+        workspace_xml = data.get("workspace_xml", "")
+        project_name = data.get("project_name", "Untitled Project")
+        
+        # Insert of update blockly_project
+        query = """INSERT INTO blockly_project (project_name, workspace_xml) 
+                   VALUES (?, ?) 
+                   ON DUPLICATE KEY UPDATE workspace_xml = VALUES(workspace_xml)"""
+        execute_query(query, (project_name, workspace_xml))
+        
+        return jsonify({"success": True, "message": "Workspace opgeslagen"})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@bp.route("/load", methods=["GET"])
+def load():
+    """Laadt de laatst opgeslagen Blockly workspace"""
+    try:
+        query = "SELECT workspace_xml FROM blockly_project ORDER BY id DESC LIMIT 1"
+        result = execute_query(query)
+        
+        if result and len(result) > 0:
+            return jsonify({"workspace_xml": result[0].get("workspace_xml", "")})
+        else:
+            return jsonify({"workspace_xml": ""})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
