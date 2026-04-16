@@ -33,7 +33,16 @@
     </div>
     <div class="right-panel">
         <div id="code-panel">
-            <b>Gegenereerde code:</b>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <b>Gegenereerde code:</b>
+                <button type="button" id="copyCodeBtn" class="copy-btn" onclick="copyCode()" title="Code naar klembord">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                    </svg>
+                    Kopie
+                </button>
+            </div>
             <textarea id="pythonCode" readonly></textarea>
         </div>
         <div id="results-panel">
@@ -136,6 +145,27 @@ function runTest() {
         runBtn.classList.remove('loading');
         runBtn.disabled = false;
         document.getElementById('testResults').innerHTML = `<p style="color: #e74c3c; font-weight: bold;">Fout</p><p style="color: #e74c3c;">${e.message}</p>`;
+    });
+}
+
+function copyCode() {
+    const codeTextarea = document.getElementById('pythonCode');
+    const code = codeTextarea.value;
+    const btn = document.getElementById('copyCodeBtn');
+    
+    if (!code || code.includes('Connect blocks to generate code')) {
+        alert('Er is geen code om te kopieëren. Voeg blokken toe en probeer opnieuw.');
+        return;
+    }
+    
+    navigator.clipboard.writeText(code).then(() => {
+        btn.style.opacity = '0.5';
+        
+        setTimeout(() => {
+            btn.style.opacity = '1';
+        }, 2000);
+    }).catch(err => {
+        alert('Kan niet naar klembord kopieëren: ' + err);
     });
 }
 
