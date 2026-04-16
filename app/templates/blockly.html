@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blockly Editor</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/blockly.css') }}">
 </head>
@@ -18,7 +19,7 @@
         <button type="button" class="header-btn" onclick="saveWorkspace()">Opslaan</button>
         <button type="button" class="header-btn" onclick="loadWorkspace()">Laden</button>
         <button type="button" class="header-btn">Keywords</button>
-        <button type="button" class="header-btn">Run</button>
+        <button type="button" class="header-btn" id="runBtn" onclick="runTest()">Run</button>
         <button type="button" class="header-btn">Export</button>
     </div>
 </header>
@@ -78,6 +79,62 @@ function loadWorkspace() {
                 Blockly.Xml.domToWorkspace(xml, Blockly.getMainWorkspace());
             }
         });
+}
+
+function runTest() {
+    const xml = Blockly.Xml.workspaceToDom(workspace);
+    const xmlText = Blockly.Xml.domToText(xml);
+    const runBtn = document.getElementById('runBtn');
+    const resultsPanel = document.getElementById('testResults');
+    
+    // Disable button en set loading state
+    runBtn.disabled = true;
+    runBtn.classList.add('loading');
+    resultsPanel.classList.add('loading');
+    resultsPanel.innerHTML = '<p>Test loopt...</p>';
+    
+    fetch('/blockly/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspace_xml: xmlText })
+    })
+    .then(r => r.json())
+    .then(data => {
+        resultsPanel.classList.remove('loading');
+        runBtn.classList.remove('loading');
+        runBtn.disabled = false;
+        
+        if (data.fout) {
+            resultsPanel.classList.add('error');
+            resultsPanel.innerHTML = `<p style="color: #e74c3c; font-weight: bold;">Fout</p><p style="color: #e74c3c;">${data.fout}</p>`;
+        } else {
+            // Toon visuele status feedback (groen/rood)
+            resultsPanel.classList.remove('error');
+            const statusColor = data.gefaald === 0 ? '#27ae60' : '#e74c3c';
+            const statusText = data.gefaald === 0 ? 'GESLAAGD' : 'GEFAALD';
+            
+            if (data.gefaald === 0) {
+                resultsPanel.classList.add('success');
+            } else {
+                resultsPanel.classList.add('error');
+            }
+            
+            const html = `
+                <p style="font-size: 16px; color: ${statusColor}; font-weight: bold;">${statusText}</p>
+                <p style="margin: 8px 0;">Geslaagd: <strong>${data.geslaagd}</strong></p>
+                <p style="margin: 8px 0;">Gefaald: <strong>${data.gefaald}</strong></p>
+                <textarea readonly style="width: 100%; height: 120px; font-size: 11px; font-family: monospace; border: 1px solid #ddd; padding: 8px; resize: none;">${data.output}</textarea>
+            `;
+            document.getElementById('testResults').innerHTML = html;
+        }
+    })
+    .catch(e => {
+        resultsPanel.classList.remove('loading');
+        resultsPanel.classList.add('error');
+        runBtn.classList.remove('loading');
+        runBtn.disabled = false;
+        document.getElementById('testResults').innerHTML = `<p style="color: #e74c3c; font-weight: bold;">Fout</p><p style="color: #e74c3c;">${e.message}</p>`;
+    });
 }
 
 </script>
