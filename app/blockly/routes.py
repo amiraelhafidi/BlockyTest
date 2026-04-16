@@ -1,5 +1,6 @@
 from flask import render_template, request, jsonify, Response
 from app.blockly import bp, create_testrun, update_testrun_result
+from app.db import execute_query
 from app.blockly.code_generator import xml_to_robot
 import os
 import subprocess
@@ -54,7 +55,15 @@ def execute_robot_test(robot_file: str, timeout: int = 60) -> dict:
 @bp.route("/")
 def editor():
     """Laadt de Blockly editor pagina"""
-    return render_template("blockly.html")
+    project_id = request.args.get("project_id")
+    project_name = ""
+
+    if project_id:
+        result = execute_query("SELECT name FROM testflow WHERE testflow_id = ?", [project_id])
+        if result and isinstance(result, list):
+            project_name = result[0].get("name", "")
+
+    return render_template("blockly.html", project_name=project_name)
 
 
 @bp.route("/generate", methods=["POST"])
