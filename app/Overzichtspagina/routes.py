@@ -22,8 +22,13 @@ def project_detail(id):
     """
     return f"Project detail page for project {id}"
 
+
+
 @bp.route('/delete/<int:id>')
 def delete_project(id):
+    """Delete a project from the database.
+    """
+
     query = "DELETE FROM testflow WHERE testflow_id = ?"
     result = execute_query(query, [id])
 
@@ -32,8 +37,14 @@ def delete_project(id):
 
     return redirect(url_for('projects.overview'))
 
-@bp.route('/add', methods=['GET', 'POST'])
+
+
+@bp.route('/add', methods=['GET', 'POST']) 
 def add_project():
+    """
+    Add a new project to the database.
+    """
+
     if request.method == 'POST':
         # heeft gebruiker iets ingevuld?
         name = request.form.get('name')
