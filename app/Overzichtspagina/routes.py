@@ -22,6 +22,15 @@ def project_detail(id):
     """
     return f"Project detail page for project {id}"
 
+@bp.route('/delete/<int:id>')
+def delete_project(id):
+    query = "DELETE FROM testflow WHERE testflow_id = ?"
+    result = execute_query(query, [id])
+
+    if isinstance(result, dict) and (result.get("error") or result.get("reason")):
+        return f"Databasefout: {result.get('error') or result.get('reason')}"
+
+    return redirect(url_for('projects.overview'))
 
 @bp.route('/add', methods=['GET', 'POST'])
 def add_project():
