@@ -100,7 +100,6 @@ function runTest() {
     // Disable button en set loading state
     runBtn.disabled = true;
     runBtn.classList.add('loading');
-    resultsPanel.classList.add('loading');
     resultsPanel.innerHTML = '<p>Test loopt...</p>';
     
     fetch('/blockly/run', {
@@ -110,24 +109,16 @@ function runTest() {
     })
     .then(r => r.json())
     .then(data => {
-        resultsPanel.classList.remove('loading');
         runBtn.classList.remove('loading');
         runBtn.disabled = false;
         
         if (data.fout) {
-            resultsPanel.classList.add('error');
             resultsPanel.innerHTML = `<p style="color: #e74c3c; font-weight: bold;">Fout</p><p style="color: #e74c3c;">${data.fout}</p>`;
         } else {
-            // Toon visuele status feedback (groen/rood)
+            // Toon visuele status feedback (groen/rood tekst)
             resultsPanel.classList.remove('error');
             const statusColor = data.gefaald === 0 ? '#27ae60' : '#e74c3c';
             const statusText = data.gefaald === 0 ? 'GESLAAGD' : 'GEFAALD';
-            
-            if (data.gefaald === 0) {
-                resultsPanel.classList.add('success');
-            } else {
-                resultsPanel.classList.add('error');
-            }
             
             const html = `
                 <p style="font-size: 16px; color: ${statusColor}; font-weight: bold;">${statusText}</p>
@@ -140,7 +131,6 @@ function runTest() {
     })
     .catch(e => {
         resultsPanel.classList.remove('loading');
-        resultsPanel.classList.add('error');
         runBtn.classList.remove('loading');
         runBtn.disabled = false;
         document.getElementById('testResults').innerHTML = `<p style="color: #e74c3c; font-weight: bold;">Fout</p><p style="color: #e74c3c;">${e.message}</p>`;
