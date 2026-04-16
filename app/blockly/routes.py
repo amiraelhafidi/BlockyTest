@@ -26,8 +26,9 @@ def execute_robot_test(robot_file: str, timeout: int = 60) -> dict:
             f.write(robot_file)
         
         try:
+            # Voer via 'python -m robot' zodat venv versie gebruikt wordt
             result = subprocess.run(
-                ["robot", "--outputdir", tmpdir, robot_path],
+                ["python", "-m", "robot", "--outputdir", tmpdir, robot_path],
                 capture_output=True,
                 text=True,
                 timeout=timeout

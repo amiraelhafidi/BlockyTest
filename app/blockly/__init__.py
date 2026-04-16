@@ -6,21 +6,21 @@ bp = Blueprint("blockly", __name__)
 
 
 def create_testrun():
-    """Creates a new testrun entry in the database
+    """Maak nieuw testrun record in database
     
     Returns:
-        int: testrun_id of the created entry
+        int: testrun_id van het nieuwe record
     """
-    # Use or create default testflow
+    # Zoek bestaande testflow
     testflows = execute_query("SELECT testflow_id FROM testflow LIMIT 1")
     
     if testflows and len(testflows) > 0:
         testflow_id = testflows[0].get("testflow_id")
     else:
-        # Create default testflow if none exists
+        # Maak standaard testflow aan als er geen bestaat
         result = execute_query(
             "INSERT INTO testflow (name, description, status) VALUES (?, ?, ?)",
-            ("Default Testflow", "Auto-created default testflow", "active")
+            ("Default Testflow", "Automatisch aangemaakt", "active")
         )
         testflow_id = result.get("insertId")
     
