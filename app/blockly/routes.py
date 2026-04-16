@@ -1,5 +1,5 @@
 from flask import render_template, request, jsonify, Response
-from app.blockly import bp
+from app.blockly import bp, create_testrun, update_testrun_result
 from app.blockly.code_generator import xml_to_robot
 import os
 import subprocess
@@ -96,7 +96,17 @@ def download():
 
 @bp.route("/run", methods=["POST"])
 def run():
-    """Voert test uit en retourneert resultaten"""
+    """Voert test uit en slaat resultaten automatisch op in database
+    
+    Verwacht JSON POST data met workspace_xml.
+    Maakt automatisch een testrun aan, voert test uit en slaat resultaten op.
+    
+    JSON body:
+        workspace_xml (str): Blockly XML van de test
+    
+    Returns:
+        dict: Test resultaten (return_code, geslaagd, gefaald, output)
+    """
     data = request.get_json()
     xml = data.get("workspace_xml", "")
     
@@ -110,8 +120,20 @@ def run():
     except ValueError as e:
         return jsonify({"fout": str(e)}), 400
     
+    # Create testrun entry
+    testrun_id = create_testrun()
+    
     try:
         results = execute_robot_test(robot_file)
+        
+        # Update testrun with results
+        passed = results.get("geslaagd", 0)
+        failed = results.get("gefaald", 0)
+        status = "passed" if results["return_code"] == 0 else "failed"
+        update_testrun_result(testrun_id, status, passed, failed)
+        
         return jsonify(results)
     except RuntimeError as e:
+        # Update testrun with error status
+        update_testrun_result(testrun_id, "error", 0, 0)
         return jsonify({"fout": str(e)}), 500
