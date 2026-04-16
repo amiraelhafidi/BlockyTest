@@ -5,7 +5,7 @@ from app.Overzichtspagina import bp
 @bp.route('/projects')
 def overview():
     """
-    Show an overview of all projects.
+    Render the project overview page with all projects ordered by newest first.
     """
     query = "SELECT * FROM testflow ORDER BY created_at DESC"
     result = execute_query(query)
@@ -18,7 +18,7 @@ def overview():
 @bp.route('/project/<int:id>')
 def project_detail(id):
     """
-    Show the details of a project.
+    Return the detail view for a single project.
     """
     return f"Project detail page for project {id}"
 
@@ -26,7 +26,8 @@ def project_detail(id):
 
 @bp.route('/delete/<int:id>')
 def delete_project(id):
-    """Delete a project from the database.
+    """
+    Delete a project by its ID and redirect back to the overview page.
     """
 
     query = "DELETE FROM testflow WHERE testflow_id = ?"
@@ -42,7 +43,10 @@ def delete_project(id):
 @bp.route('/add', methods=['GET', 'POST']) 
 def add_project():
     """
-    Add a new project to the database.
+    Show the add-project form and handle creation of a new project.
+
+    On POST, validates the project name, inserts the record into the
+    database, and redirects to the overview page after a successful save.
     """
 
     if request.method == 'POST':
@@ -56,6 +60,7 @@ def add_project():
         # user_id is verplicht in schema.sql, gebruik tijdelijk user 1
         query = "INSERT INTO testflow (name, description, user_id, status) VALUES (?, ?, ?, ?)"
         result = execute_query(query, [name, description, 1, "nieuw"])
+        
         if isinstance(result, dict) and (result.get("error") or result.get("reason")):
             flash(f"Databasefout: {result.get('error') or result.get('reason')}", "error")
             return render_template('add_project.html')
