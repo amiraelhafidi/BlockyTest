@@ -16,9 +16,19 @@
     <div class="form_box">
         <h2 class="form_title">Nieuw project toevoegen</h2>
 
-        <form method="POST">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash_messages">
+                    {% for category, message in messages %}
+                        <div class="flash_message flash_{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" novalidate>
             <label for="name">Projectnaam:</label>
-            <input type="text" id="name" name="name" required>
+            <input type="text" id="name" name="name">
 
             <label for="description">Beschrijving:</label>
             <textarea id="description" name="description"></textarea>

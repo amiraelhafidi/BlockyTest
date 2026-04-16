@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for
+from flask import flash, render_template, request, redirect, url_for
 from app.db import execute_query
 from app.Overzichtspagina import bp
 
@@ -47,18 +47,21 @@ def add_project():
 
     if request.method == 'POST':
         # heeft gebruiker iets ingevuld?
-        name = request.form.get('name')
+        name = request.form.get('name', '').strip()
         description = request.form.get('description')
         if not name:
-            return "Projectnaam is verplicht."
+            flash("Projectnaam is verplicht", "error")
+            return render_template('add_project.html')
 
         # user_id is verplicht in schema.sql, gebruik tijdelijk user 1
         query = "INSERT INTO testflow (name, description, user_id, status) VALUES (?, ?, ?, ?)"
         result = execute_query(query, [name, description, 1, "nieuw"])
         if isinstance(result, dict) and (result.get("error") or result.get("reason")):
-            return f"Databasefout: {result.get('error') or result.get('reason')}"
+            flash(f"Databasefout: {result.get('error') or result.get('reason')}", "error")
+            return render_template('add_project.html')
+
+        flash("Project succesvol toegevoegd", "success")
 
         return redirect(url_for('projects.overview'))
-    # doe iets daarna
 
     return render_template('add_project.html')

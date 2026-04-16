@@ -57,6 +57,36 @@ main {
     color: rgb(0, 0, 0);
 }
 
+.projects_container {
+    border: 2px solid black;
+    padding: 30px;
+    box-sizing: border-box;
+} 
+
+.flash_messages {
+    margin-bottom: 20px;
+}
+
+.flash_message {
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border: 2px solid transparent;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.flash_success {
+    background-color: #d9f7d9;
+    border-color: #4caf50;
+    color: #1f6b23;
+}
+
+.flash_error {
+    background-color: #fde2e2;
+    border-color: #d9534f;
+    color: #8a1f1b;
+}
+
 /* duwt de plus knop naar rechts */
 .add_button {
     margin-left: auto;
@@ -151,8 +181,7 @@ textarea {
     margin-bottom: 20px;
     border: none;
     box-sizing: border-box;
-    background-color:#c1c2eb;
-;
+    background-color: #c1c2eb;
 }
 
 textarea {

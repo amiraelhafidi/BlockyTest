@@ -14,10 +14,22 @@
 </header>
 
 <main>
+<div class="projects_container">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash_messages">
+                {% for category, message in messages %}
+                    <div class="flash_message flash_{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
     <div class="projects_header">
         <h2>Mijn projecten</h2>
         <a href="{{ url_for('projects.add_project') }}" class="add_button">+</a>
+
     </div>
 
     <div class="projects_box">
@@ -36,6 +48,8 @@
             <p>Er zijn nog geen projecten toegevoegd. Klik op '+' om een project toe te voegen.</p>
         {% endif %}
     </div>
+
+</div>
 
 </main>
 </body>
