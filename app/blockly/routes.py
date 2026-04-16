@@ -59,7 +59,7 @@ def execute_robot_test(robot_file: str, timeout: int = 60) -> dict:
 
 
 # API ROUTES
-
+# Deze routes is nodig om de projectnaam te kunnen tonen in de editor en om de gegenereerde code te kunnen downloaden als .robot bestand.
 @bp.route("/")
 def editor():
     """Laadt de Blockly editor pagina"""
