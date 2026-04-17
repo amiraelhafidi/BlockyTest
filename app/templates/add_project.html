@@ -2,7 +2,7 @@
 <html>
 <head>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
-    <title>Nieuw project</title>
+    <title>{% if is_edit %}Project bewerken{% else %}Nieuw project{% endif %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/projects.css') }}">
 </head>
 <body>
@@ -14,7 +14,7 @@
 
 <div class="form_page">
     <div class="form_box">
-        <h2 class="form_title">Nieuw project toevoegen</h2>
+        <h2 class="form_title">{% if is_edit %}Project bewerken{% else %}Nieuw project toevoegen{% endif %}</h2>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -28,13 +28,13 @@
 
         <form method="POST" novalidate>
             <label for="name">Projectnaam:</label>
-            <input type="text" id="name" name="name">
+            <input type="text" id="name" name="name" value="{{ project.name if project else '' }}">
 
             <label for="description">Beschrijving:</label>
-            <textarea id="description" name="description"></textarea>
+            <textarea id="description" name="description">{{ project.description if project else '' }}</textarea>
 
             <div class="form_buttons">
-                <button type="submit">Project aanmaken</button>
+                <button type="submit">{% if is_edit %}Project opslaan{% else %}Project aanmaken{% endif %}</button>
                 <a href="{{ url_for('projects.overview') }}" class="go_back">Annuleren</a>
             </div>
         </form>
