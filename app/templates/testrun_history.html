@@ -130,7 +130,7 @@
                     {% for run in testruns %}
                     <tr>
                         <td>#{{ run.testrun_id }}</td>
-                        <td><span style="padding: 4px 8px; border-radius: 4px; font-weight: 500; {% if run.status == 'passed' %}background: #d4edda; color: #155724;{% elif run.status == 'failed' %}background: #f8d7da; color: #721c24;{% else %}background: #fff3cd; color: #856404;{% endif %}">{{ run.status }}</span></td>
+                        <td><span style="padding: 4px 8px; border-radius: 4px; font-weight: 500; {% if run.status == 'passed' %}background: #d4edda; color: #155724;{% elif run.status == 'failed' %}background: #f8d7da; color: #721c24;{% else %}background: #fff3cd; color: #856404;{% endif %}">{% if run.status == 'passed' %}Geslaagd{% elif run.status == 'failed' %}Gefaald{% else %}Fout{% endif %}</span></td>
                         <td>{% if run.started_at %}{{ run.started_at[:10] }} {{ run.started_at[11:19] }}{% else %}—{% endif %}</td>
                     </tr>
                     {% endfor %}
