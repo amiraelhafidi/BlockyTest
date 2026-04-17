@@ -21,7 +21,7 @@
         <button type="button" class="header-btn" onclick="saveWorkspace()">Opslaan</button>
         <button type="button" class="header-btn" onclick="loadWorkspace()">Laden</button>
         <button type="button" class="header-btn" id="runBtn" onclick="runTest()">Run</button>
-        <a href="{{ url_for('blockly.history') }}" class="header-btn" style="text-decoration: none;">History</a>
+        <a href="{{ url_for('blockly.geschiedenis') }}" class="header-btn" style="text-decoration: none;">Geschiedenis</a>
     </div>
 </header>
 
@@ -45,7 +45,7 @@
             <textarea id="pythonCode" readonly></textarea>
         </div>
         <div id="results-panel">
-            <b>Test resultaten</b>
+            <div id="testResults-header"><b>Test resultaten</b></div>
             <div id="testResults">
                 <p>Klik op "Run" om de test uit te voeren</p>
             </div>
@@ -95,12 +95,12 @@ function runTest() {
     const xml = Blockly.Xml.workspaceToDom(workspace);
     const xmlText = Blockly.Xml.domToText(xml);
     const runBtn = document.getElementById('runBtn');
-    const resultsPanel = document.getElementById('testResults');
+    const resultsPanel = document.getElementById('results-panel');
     
     // Disable button en set loading state
     runBtn.disabled = true;
     runBtn.classList.add('loading');
-    resultsPanel.innerHTML = '<p>Test loopt...</p>';
+    resultsPanel.innerHTML = '<div id="testResults-header"><b>Test resultaten</b></div><div id="testResults" style="padding: 12px;"><p style="margin: 0; color: #666;">Test loopt...</p></div>';
     
     fetch('/blockly/run', {
         method: 'POST',
@@ -113,27 +113,22 @@ function runTest() {
         runBtn.disabled = false;
         
         if (data.fout) {
-            resultsPanel.innerHTML = `<p style="color: #e74c3c; font-weight: bold;">Fout</p><p style="color: #e74c3c;">${data.fout}</p>`;
+            resultsPanel.innerHTML = `<div id="testResults-header"><b>Test resultaten</b></div><div id="testResults" style="padding: 12px;"><p style="color: #e74c3c; font-weight: bold; margin: 0 0 8px 0;">Fout</p><p style="color: #e74c3c; margin: 0;">${data.fout}</p></div>`;
         } else {
             // Toon visuele status feedback (groen/rood tekst)
             resultsPanel.classList.remove('error');
             const statusColor = data.gefaald === 0 ? '#27ae60' : '#e74c3c';
             const statusText = data.gefaald === 0 ? 'GESLAAGD' : 'GEFAALD';
             
-            const html = `
-                <p style="font-size: 16px; color: ${statusColor}; font-weight: bold;">${statusText}</p>
-                <p style="margin: 8px 0;">Geslaagd: <strong>${data.geslaagd}</strong></p>
-                <p style="margin: 8px 0;">Gefaald: <strong>${data.gefaald}</strong></p>
-                <textarea readonly style="width: 100%; height: 120px; font-size: 11px; font-family: monospace; border: 1px solid #ddd; padding: 8px; resize: none;">${data.output}</textarea>
-            `;
-            document.getElementById('testResults').innerHTML = html;
+            const html = `<div id="testResults-header"><b>Test resultaten</b></div><div id="testResults" style="padding: 12px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;"><p style="font-size: 16px; color: ${statusColor}; font-weight: bold; margin: 0 0 8px 0;">${statusText}</p><p style="margin: 4px 0; font-size: 13px;">Geslaagd: <strong>${data.geslaagd}</strong></p><p style="margin: 4px 0 8px 0; font-size: 13px;">Gefaald: <strong>${data.gefaald}</strong></p><textarea readonly style="width: 100%; flex: 1; font-size: 11px; font-family: monospace; border: 1px solid #ddd; padding: 8px; resize: none; box-sizing: border-box;">Uitvoer:\n${data.output}</textarea></div>`;
+            resultsPanel.innerHTML = html;
         }
     })
     .catch(e => {
-        resultsPanel.classList.remove('loading');
         runBtn.classList.remove('loading');
         runBtn.disabled = false;
-        document.getElementById('testResults').innerHTML = `<p style="color: #e74c3c; font-weight: bold;">Fout</p><p style="color: #e74c3c;">${e.message}</p>`;
+        const resultsPanel = document.getElementById('results-panel');
+        resultsPanel.innerHTML = `<div id="testResults-header"><b>Test resultaten</b></div><div id="testResults" style="padding: 12px;"><p style="color: #e74c3c; font-weight: bold; margin: 0 0 8px 0;">Fout</p><p style="color: #e74c3c; margin: 0;">${e.message}</p></div>`;
     });
 }
 

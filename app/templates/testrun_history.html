@@ -79,6 +79,17 @@
             padding: 60px 20px;
             color: #999;
         }
+
+        .table-wrapper {
+            max-height: 70vh;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .table-wrapper table {
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -96,7 +107,7 @@
 
 <div class="history-container">
     <div class="page-header">
-        <h1>Test History</h1>
+        <h1>Test Geschiedenis</h1>
     </div>
 
     <a href="{{ url_for('blockly.editor') }}" class="back-btn">← Terug naar Editor</a>
@@ -106,32 +117,26 @@
     {% endif %}
 
     {% if testruns %}
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Projectnaam</th>
-                    <th>Status</th>
-                    <th>Datum</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for run in testruns %}
-                <tr>
-                    <td>#{{ run.testrun_id }}</td>
-                    <td>{{ run.testflow_name or '—' }}</td>
-                    <td>{{ run.status }}</td>
-                    <td>
-                        {% if run.started_at %}
-                            {{ run.started_at[:10] }} {{ run.started_at[11:19] }}
-                        {% else %}
-                            —
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Status</th>
+                        <th>Datum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for run in testruns %}
+                    <tr>
+                        <td>#{{ run.testrun_id }}</td>
+                        <td><span style="padding: 4px 8px; border-radius: 4px; font-weight: 500; {% if run.status == 'passed' %}background: #d4edda; color: #155724;{% elif run.status == 'failed' %}background: #f8d7da; color: #721c24;{% else %}background: #fff3cd; color: #856404;{% endif %}">{{ run.status }}</span></td>
+                        <td>{% if run.started_at %}{{ run.started_at[:10] }} {{ run.started_at[11:19] }}{% else %}—{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% else %}
         <div class="empty-state">
             <p>Geen testruns gevonden</p>

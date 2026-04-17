@@ -157,24 +157,45 @@ def run():
         return jsonify({"fout": str(e)}), 500
 
 
-@bp.route("/history")
-def history():
-    """Laadt de testrun history pagina met alle vorige testruns"""
+@bp.route("/geschiedenis")
+def geschiedenis():
+    """Laadt de test geschiedenis pagina met testruns van het huidige project"""
     try:
-        # Haal alle testruns op
-        query = """SELECT 
-                    tr.testrun_id,
-                    tf.name as testflow_name,
-                    tr.status,
-                    tr.started_at
-                   FROM testrun tr
-                   LEFT JOIN testflow tf ON tr.testflow_id = tf.testflow_id
-                   ORDER BY tr.started_at DESC
-                   LIMIT 100"""
-        testruns = execute_query(query)
-        return render_template("testrun_history.html", testruns=testruns)
+        project_id = request.args.get("project_id")
+        project_name = ""
+        
+        if project_id:
+            result = execute_query("SELECT name FROM testflow WHERE testflow_id = ?", [project_id])
+            if result and isinstance(result, list) and len(result) > 0:
+                project_name = result[0].get("name", "")
+        
+        if project_id:
+            query = """SELECT 
+                        tr.testrun_id,
+                        tf.name as testflow_name,
+                        tr.status,
+                        tr.started_at
+                       FROM testrun tr
+                       LEFT JOIN testflow tf ON tr.testflow_id = tf.testflow_id
+                       WHERE tr.testflow_id = ?
+                       ORDER BY tr.started_at DESC
+                       LIMIT 100"""
+            testruns = execute_query(query, [project_id])
+        else:
+            query = """SELECT 
+                        tr.testrun_id,
+                        tf.name as testflow_name,
+                        tr.status,
+                        tr.started_at
+                       FROM testrun tr
+                       LEFT JOIN testflow tf ON tr.testflow_id = tf.testflow_id
+                       ORDER BY tr.started_at DESC
+                       LIMIT 100"""
+            testruns = execute_query(query)
+        
+        return render_template("testrun_history.html", testruns=testruns, project_name=project_name)
     except Exception as e:
-        return render_template("testrun_history.html", testruns=[], error=str(e))
+        return render_template("testrun_history.html", testruns=[], project_name="", error=str(e))
 
 
 @bp.route("/save", methods=["POST"])
