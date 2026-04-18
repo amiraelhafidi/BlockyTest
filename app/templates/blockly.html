@@ -125,7 +125,7 @@ function runTest() {
             const statusColor = data.gefaald === 0 ? '#27ae60' : '#e74c3c';
             const statusText = data.gefaald === 0 ? 'GESLAAGD' : 'GEFAALD';
             
-            const html = `<div id="testResults-header"><b>Test resultaten</b></div><div id="testResults" style="padding: 12px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;"><p style="font-size: 16px; color: ${statusColor}; font-weight: bold; margin: 0 0 8px 0;">${statusText}</p><p style="margin: 4px 0; font-size: 13px;">Geslaagd: <strong>${data.geslaagd}</strong></p><p style="margin: 4px 0 8px 0; font-size: 13px;">Gefaald: <strong>${data.gefaald}</strong></p><textarea readonly style="width: 100%; flex: 1; font-size: 11px; font-family: monospace; border: 1px solid #ddd; padding: 8px; resize: none; box-sizing: border-box;">Uitvoer:\n${data.output}</textarea></div>`;
+            const html = `<div id="testResults-header"><b>Test resultaten</b></div><div id="testResults" style="padding: 12px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;"><p style="font-size: 16px; color: ${statusColor}; font-weight: bold; margin: 0 0 8px 0;">${statusText}</p><textarea readonly style="width: 100%; flex: 1; font-size: 11px; font-family: monospace; border: 1px solid #ddd; padding: 8px; resize: none; box-sizing: border-box;">Uitvoer:\n${data.output}</textarea></div>`;
             resultsPanel.innerHTML = html;
         }
     })
