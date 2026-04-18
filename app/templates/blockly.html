@@ -9,6 +9,7 @@
 </head>
 <script src="https://unpkg.com/blockly/blockly.min.js"></script>
 <script src="https://unpkg.com/blockly/python_compressed.js"></script>
+<script src="{{ url_for('static', filename='js/custom_blocks.js') }}"></script>
 <body>
 
 <header class="header">
@@ -58,6 +59,10 @@
     <block type="logic_compare"></block>
     <block type="math_number"></block>
     <block type="text"></block>
+    <block type="close_browser"></block>
+    <block type="maximize_window"></block>
+    <block type="wait_seconds"></block>
+    <block type="assert_title"></block>
 </xml>
 
 <script>
@@ -186,6 +191,8 @@ function clearWorkspace() {
     });
 }
 </script>
+
+
 </body>
 </html>
 
