@@ -71,20 +71,30 @@
 
 <script>
 const workspace = Blockly.inject('blocklyDiv', { toolbox: document.getElementById('toolbox') });
+const pythonCodeField = document.getElementById('pythonCode');
+
+function getWorkspaceXml() {
+    const xml = Blockly.Xml.workspaceToDom(workspace);
+    return Blockly.Xml.domToText(xml);
+}
+
+function updateGeneratedCode() {
+    const code = Blockly.Python.workspaceToCode(workspace);
+    pythonCodeField.value = code || '# Connect blocks to generate code...';
+}
 
 workspace.addChangeListener(function(event) {
     if (event.isUiEvent) return;
-    const code = Blockly.Python.workspaceToCode(workspace);
-    document.getElementById('pythonCode').value = code || '# Connect blocks to generate code...';
+    updateGeneratedCode();
 });
 
+updateGeneratedCode();
+
 function saveWorkspace() {
-    const xml = Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace());
-    const xmlText = Blockly.Xml.domToText(xml);
     fetch('/blockly/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workspace_xml: xmlText })
+        body: JSON.stringify({ workspace_xml: getWorkspaceXml() })
     }).then(r => r.json()).then(d => alert(d.message));
 }
 
@@ -92,17 +102,18 @@ function loadWorkspace() {
     fetch('/blockly/load')
         .then(r => r.json())
         .then(d => {
+            workspace.clear();
+
             if (d.workspace_xml) {
-                Blockly.getMainWorkspace().clear();
                 const xml = Blockly.utils.xml.textToDom(d.workspace_xml);
-                Blockly.Xml.domToWorkspace(xml, Blockly.getMainWorkspace());
+                Blockly.Xml.domToWorkspace(xml, workspace);
             }
+
+            updateGeneratedCode();
         });
 }
 
 function runTest() {
-    const xml = Blockly.Xml.workspaceToDom(workspace);
-    const xmlText = Blockly.Xml.domToText(xml);
     const runBtn = document.getElementById('runBtn');
     
     runBtn.disabled = true;
@@ -112,7 +123,7 @@ function runTest() {
     fetch('/blockly/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workspace_xml: xmlText })
+        body: JSON.stringify({ workspace_xml: getWorkspaceXml() })
     })
     .then(r => r.json())
     .then(data => {
@@ -174,8 +185,7 @@ function renderResultsPanel({ message = '', statusText = '', statusClass = '', o
 }
 
 function copyCode() {
-    const codeTextarea = document.getElementById('pythonCode');
-    const code = codeTextarea.value;
+    const code = pythonCodeField.value;
     const btn = document.getElementById('copyCodeBtn');
     
     if (!code || code.includes('Connect blocks to generate code')) {
@@ -195,39 +205,6 @@ function copyCode() {
 }
 
 </script>
-
-<!--  Javascript which clears the Blockly workspace, but also saves it in the database if wanted. -->
-<script>
-function clearWorkspace() {
-    const confirmed = confirm("Weet je zeker dat je alle blokken wilt verwijderen?");
-
-    if (!confirmed) {
-        return;
-    }
-
-    const workspace = Blockly.getMainWorkspace();
-    workspace.clear();
-
-    const xml = Blockly.Xml.workspaceToDom(workspace);
-    const xmlText = Blockly.Xml.domToText(xml);
-
-    fetch('/blockly/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workspace_xml: xmlText })
-    })
-    .then(res => res.json())
-    .then(data => {
-        console.log(data);
-        alert("Alle blokken zijn verwijderd en opgeslagen.");
-    })
-    .catch(error => {
-        console.error(error);
-        alert("De workspace is gewist, maar opslaan is mislukt.");
-    });
-}
-</script>
-
 
 </body>
 </html>

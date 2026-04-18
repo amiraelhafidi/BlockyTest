@@ -1,3 +1,4 @@
+/* BASIS */
 body {
     margin: 0;
     padding: 0;
@@ -41,13 +42,6 @@ html {
     width: auto;
 }
 
-.header-center {
-    flex: 1;
-    text-align: center;
-    color: white;
-    font-size: 13px;
-}
-
 .header-right {
     display: flex;
     gap: 8px;
@@ -76,37 +70,7 @@ html {
     border-color: rgba(255, 255, 255, 0.5);
 }
 
-.header-btn.primary {
-    background: rgb(52, 168, 224);
-    border-color: rgb(52, 168, 224);
-}
-
-.header-btn.primary:hover {
-    background: rgb(40, 150, 200);
-}
-
-.title {
-    font-weight: bold;
-    font-size: 20px;
-}
-
-/* ICON BUTTONS */
-.btn-icon {
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 2px solid black;
-    background: white;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    width: fit-content;
-    align-self: flex-end;
-}
-
-.btn-primary-icon {
-    background: #6366f1;
-    color: white;
-}
+/* PAGINATITEL */
 
 h1 {
     text-align: left;
@@ -155,13 +119,6 @@ h1 {
     width: 100%;
 }
 
-.workspace-label {
-    position: absolute;
-    top: 2px;
-    left: 400px;
-    color: #888;
-}
-
 /* GEGENEREERDE CODE VLAK */
 
 #code-panel {
@@ -179,7 +136,8 @@ h1 {
     margin-bottom: 8px;
 }
 
-.code-panel-header b {
+.code-panel-header b,
+.results-title b {
     color: #333;
     font-size: 16px;
 }
@@ -207,11 +165,6 @@ h1 {
     gap: 8px;
 }
 
-.results-title b {
-    color: #333;
-    font-size: 16px;
-}
-
 #results-panel {
     flex: 1;
     display: flex;
@@ -233,6 +186,7 @@ h1 {
     gap: 10px;
     overflow-y: auto;
     box-sizing: border-box;
+    transition: opacity 0.3s ease;
 }
 
 .result-placeholder {
@@ -268,6 +222,48 @@ h1 {
     line-height: 1.5;
     color: #333;
     background: #fff;
+}
+
+/* LOADING & ERROR STATES */
+
+.header-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.header-btn.loading {
+    opacity: 0.7;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 0.5; }
+}
+
+/* COPY BUTTON */
+.copy-btn {
+    padding: 4px 10px;
+    background-color: #4278c0;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.copy-btn:hover {
+    background-color: #3a6ba8;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.copy-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* RESPONSIVE: Tablet */
@@ -314,51 +310,4 @@ h1 {
         height: 50vh;
         min-width: 100%;
     }
-}
-
-/* LOADING & ERROR STATES */
-
-.header-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.header-btn.loading {
-    opacity: 0.7;
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 0.7; }
-    50% { opacity: 0.5; }
-}
-
-#testResults {
-    transition: opacity 0.3s ease;
-}
-
-
-/* COPY BUTTON */
-.copy-btn {
-    padding: 4px 10px;
-    background-color: #4278c0;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
-
-.copy-btn:hover {
-    background-color: #3a6ba8;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.copy-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }

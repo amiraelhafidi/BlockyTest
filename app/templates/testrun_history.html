@@ -128,9 +128,19 @@
                 </thead>
                 <tbody>
                     {% for run in testruns %}
+                    {% if run.status == 'passed' %}
+                    {% set status_label = 'Geslaagd' %}
+                    {% set status_style = 'background: #d4edda; color: #155724;' %}
+                    {% elif run.status == 'failed' %}
+                    {% set status_label = 'Gefaald' %}
+                    {% set status_style = 'background: #f8d7da; color: #721c24;' %}
+                    {% else %}
+                    {% set status_label = 'Fout' %}
+                    {% set status_style = 'background: #fff3cd; color: #856404;' %}
+                    {% endif %}
                     <tr>
                         <td>#{{ run.testrun_id }}</td>
-                        <td><span style="padding: 4px 8px; border-radius: 4px; font-weight: 500; {% if run.status == 'passed' %}background: #d4edda; color: #155724;{% elif run.status == 'failed' %}background: #f8d7da; color: #721c24;{% else %}background: #fff3cd; color: #856404;{% endif %}">{% if run.status == 'passed' %}Geslaagd{% elif run.status == 'failed' %}Gefaald{% else %}Fout{% endif %}</span></td>
+                        <td><span style="padding: 4px 8px; border-radius: 4px; font-weight: 500; {{ status_style }}">{{ status_label }}</span></td>
                         <td>{% if run.started_at %}{{ run.started_at[:10] }} {{ run.started_at[11:19] }}{% else %}—{% endif %}</td>
                     </tr>
                     {% endfor %}
