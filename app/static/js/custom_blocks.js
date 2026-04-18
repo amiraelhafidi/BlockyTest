@@ -43,19 +43,19 @@ Blockly.Blocks['assert_title'] = {
 
 Blockly.Python.forBlock['assert_title'] = function(block, generator) {
   const expectedTitle = block.getFieldValue('EXPECTED_TITLE');
-  return `Title Should Be ${expectedTitle}\n`;
+  return `assert driver.title == ${JSON.stringify(expectedTitle)}\n`;
 };
 
 Blockly.Python.forBlock['wait_seconds'] = function(block, generator) {
   const seconds = block.getFieldValue('SECONDS');
-  return `Sleep ${seconds}s\n`;
+  return `time.sleep(${seconds})\n`;
 };
 
 // Code generators
 Blockly.Python.forBlock['close_browser'] = function(block, generator) {
-  return 'Close Browser\n';
+  return 'driver.close()\n';
 };
 
 Blockly.Python.forBlock['maximize_window'] = function(block, generator) {
-  return 'Maximize Browser Window\n';
+  return 'driver.maximize_window()\n';
 };
