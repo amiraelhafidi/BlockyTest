@@ -28,13 +28,17 @@
 
         <form method="POST" novalidate>
             <label for="name">Projectnaam:</label>
-            <input type="text" id="name" name="name" value="{{ project.name if project else '' }}">
+
+            <input type="text" id="name" name="name" placeholder="Voer een projectnaam in" value="{{ project.name if project else '' }}" required autofocus>
 
             <label for="description">Beschrijving:</label>
-            <textarea id="description" name="description">{{ project.description if project else '' }}</textarea>
+
+            <textarea id="description" name="description" placeholder="Voer een korte beschrijving in">{{ project.description if project else '' }}</textarea>
 
             <div class="form_buttons">
+
                 <button type="submit">{% if is_edit %}Project opslaan{% else %}Project aanmaken{% endif %}</button>
+
                 <a href="{{ url_for('projects.overview') }}" class="go_back">Annuleren</a>
             </div>
         </form>
