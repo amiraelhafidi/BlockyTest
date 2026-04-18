@@ -23,23 +23,24 @@ def project_detail(id):
     return f"Project detail page for project {id}"
 
 
-
 @bp.route('/delete/<int:id>', methods=['POST'])
 def delete_project(id):
     """
     Delete a project by its ID and redirect back to the overview page.
     """
-    # 1) Probeer het project te verwijderen
+     # 1) Probeer het project te verwijderen
     query = "DELETE FROM testflow WHERE testflow_id = ?"
     result = execute_query(query, [id])
-
     # 2) Controleer op databasefouten
     error = result.get("error") or result.get("reason") if isinstance(result, dict) else None
     if error:
-        return f"Databasefout: {error}"
+        flash("Dit project kan niet worden verwijderd omdat er nog gegevens aan gekoppeld zijn.", "error")
+        return redirect(url_for('projects.overview'))
 
-    # 3) Ga terug naar overzicht
+    flash("Project succesvol verwijderd", "success")
+     # 3) Ga terug naar overzicht
     return redirect(url_for('projects.overview'))
+
 
 @bp.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_project(id):
