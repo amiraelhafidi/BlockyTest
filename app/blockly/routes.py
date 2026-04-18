@@ -1,4 +1,4 @@
-"""Routes en helpers voor codevertaling, runs en geschiedenis."""
+"""Routes en helpers voor Blocky codevertaling, runs en geschiedenis."""
 
 import os
 import subprocess
@@ -7,6 +7,7 @@ import tempfile
 from flask import Response, jsonify, render_template, request
 
 from app.blockly import bp, create_testrun, update_testrun_result
+from app.blockly.test_result import TestResult
 from app.blockly.code_generator import xml_to_robot
 from app.db import execute_query
 
@@ -45,25 +46,9 @@ def execute_robot_test(robot_file: str, timeout: int = 60) -> dict:
         except subprocess.TimeoutExpired:
             raise RuntimeError(f"Test time-out na {timeout} seconden")
 
-        passed = result.stdout.count("| PASS |")
-        failed = result.stdout.count("| FAIL |")
-
-        # Verwijder regels met tijdelijke paden uit de output.
-        output_lines = result.stdout.split("\n")
-        cleaned_output = "\n".join(
-            [
-                line
-                for line in output_lines
-                if not any(keyword in line for keyword in ["Output:", "Log:", "Report:"])
-            ]
-        )
-
-        return {
-            "return_code": result.returncode,
-            "geslaagd": passed,
-            "gefaald": failed,
-            "output": cleaned_output + result.stderr,
-        }
+        # Laat de result class de output en aantallen opbouwen.
+        test_result = TestResult.from_process(result)
+        return test_result.to_dict(result.stderr)
 
 
 def get_project_name(project_id: str | None) -> str:
@@ -88,10 +73,10 @@ def get_project_name(project_id: str | None) -> str:
 
 def get_robot_file(xml: str) -> str:
     """
-    Zet Blockly XML om naar een volledig Robot bestand.
+    Zet Blocky XML om naar een volledig Robot bestand.
 
     Args:
-        xml (str): Blockly XML.
+        xml (str): Blocky XML.
 
     Returns:
         str: Inhoud van het Robot bestand.
@@ -144,7 +129,7 @@ def editor():
 @bp.route("/generate", methods=["POST"])
 def generate():
     """
-    Genereert preview code uit Blockly XML.
+    Genereert preview code uit Blocky XML.
 
     Returns:
         Response: JSON met preview code of een foutmelding.
