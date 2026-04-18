@@ -23,6 +23,19 @@ FIELD_DEFAULTS = {
 }
 
 
+def find_child(element: ET.Element, tag_name: str) -> ET.Element | None:
+    """Zoekt een direct child element op tagnaam, ongeacht XML namespace."""
+    for child in element:
+        if child.tag.split('}')[-1] == tag_name:
+            return child
+    return None
+
+
+def find_children(element: ET.Element, tag_name: str) -> list[ET.Element]:
+    """Zoekt directe child elementen op tagnaam, ongeacht XML namespace."""
+    return [child for child in element if child.tag.split('}')[-1] == tag_name]
+
+
 def get_field(block: ET.Element, field_name: str) -> str:
     """
     Haalt de tekstwaarde op van een <field> element binnen een blok.
@@ -34,9 +47,9 @@ def get_field(block: ET.Element, field_name: str) -> str:
     Returns:
         str: de tekstwaarde, of standaardwaarde als niet gevonden
     """
-    field = block.find(f"field[@name='{field_name}']")
-    if field is not None and field.text:
-        return field.text.strip()
+    for field in find_children(block, 'field'):
+        if field.get('name') == field_name and field.text:
+            return field.text.strip()
     return FIELD_DEFAULTS.get(field_name, '')
 
 
@@ -79,7 +92,7 @@ def parse_blocks(root: ET.Element) -> list[str]:
     """
     code_lines = []
     
-    for top_block in root.findall('block'):
+    for top_block in find_children(root, 'block'):
         # Walk de keten van blokken (via <next><block>...)
         current = top_block
         while current is not None:
@@ -87,8 +100,9 @@ def parse_blocks(root: ET.Element) -> list[str]:
             if line:
                 code_lines.append(line)
             # Ga naar volgende blok in de keten
-            current = current.find('next/block')
-    
+            next_element = find_child(current, 'next')
+            current = find_child(next_element, 'block') if next_element is not None else None
+
     return code_lines
 
 
