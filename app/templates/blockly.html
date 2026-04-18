@@ -33,8 +33,8 @@
     </div>
     <div class="right-panel">
         <div id="code-panel">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <b>Gegenereerde code:</b>
+            <div class="code-panel-header">
+                <b>Gegenereerde code</b>
                 <button type="button" id="copyCodeBtn" class="copy-btn" onclick="copyCode()" title="Code naar klembord">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
                         <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
@@ -45,10 +45,14 @@
             </div>
             <textarea id="pythonCode" readonly></textarea>
         </div>
-        <div id="results-panel">
-            <div id="testResults-header"><b>Test resultaten</b></div>
-            <div id="testResults">
-                <p>Klik op "Run" om de test uit te voeren</p>
+        <div id="results-section">
+            <div class="results-title">
+                <b>Test resultaten</b>
+            </div>
+            <div id="results-panel">
+                <div id="testResults">
+                <p class="result-placeholder">Klik op "Run" om de test uit te voeren</p>
+                </div>
             </div>
         </div>
     </div>
@@ -100,12 +104,10 @@ function runTest() {
     const xml = Blockly.Xml.workspaceToDom(workspace);
     const xmlText = Blockly.Xml.domToText(xml);
     const runBtn = document.getElementById('runBtn');
-    const resultsPanel = document.getElementById('results-panel');
     
-    // Disable button en set loading state
     runBtn.disabled = true;
     runBtn.classList.add('loading');
-    resultsPanel.innerHTML = '<div id="testResults-header"><b>Test resultaten</b></div><div id="testResults" style="padding: 12px;"><p style="margin: 0; color: #666;">Test loopt...</p></div>';
+    renderResultsPanel({ message: 'Test loopt...' });
     
     fetch('/blockly/run', {
         method: 'POST',
@@ -118,23 +120,57 @@ function runTest() {
         runBtn.disabled = false;
         
         if (data.fout) {
-            resultsPanel.innerHTML = `<div id="testResults-header"><b>Test resultaten</b></div><div id="testResults" style="padding: 12px;"><p style="color: #e74c3c; font-weight: bold; margin: 0 0 8px 0;">Fout</p><p style="color: #e74c3c; margin: 0;">${data.fout}</p></div>`;
+            renderResultsPanel({
+                statusText: 'Fout',
+                statusClass: 'error',
+                output: data.fout
+            });
         } else {
-            // Toon visuele status feedback (groen/rood tekst)
-            resultsPanel.classList.remove('error');
-            const statusColor = data.gefaald === 0 ? '#27ae60' : '#e74c3c';
-            const statusText = data.gefaald === 0 ? 'GESLAAGD' : 'GEFAALD';
-            
-            const html = `<div id="testResults-header"><b>Test resultaten</b></div><div id="testResults" style="padding: 12px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box;"><p style="font-size: 16px; color: ${statusColor}; font-weight: bold; margin: 0 0 8px 0;">${statusText}</p><textarea readonly style="width: 100%; flex: 1; font-size: 11px; font-family: monospace; border: 1px solid #ddd; padding: 8px; resize: none; box-sizing: border-box;">Uitvoer:\n${data.output}</textarea></div>`;
-            resultsPanel.innerHTML = html;
+            const statusClass = data.return_code === 0 ? 'success' : 'error';
+            const statusText = data.return_code === 0 ? 'Geslaagd' : 'Gefaald';
+            renderResultsPanel({
+                statusText,
+                statusClass,
+                output: data.output
+            });
         }
     })
     .catch(e => {
         runBtn.classList.remove('loading');
         runBtn.disabled = false;
-        const resultsPanel = document.getElementById('results-panel');
-        resultsPanel.innerHTML = `<div id="testResults-header"><b>Test resultaten</b></div><div id="testResults" style="padding: 12px;"><p style="color: #e74c3c; font-weight: bold; margin: 0 0 8px 0;">Fout</p><p style="color: #e74c3c; margin: 0;">${e.message}</p></div>`;
+        renderResultsPanel({
+            statusText: 'Fout',
+            statusClass: 'error',
+            output: e.message
+        });
     });
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function renderResultsPanel({ message = '', statusText = '', statusClass = '', output = '' } = {}) {
+    const resultsPanel = document.getElementById('testResults');
+
+    if (message) {
+        resultsPanel.innerHTML = `<p class="result-placeholder">${escapeHtml(message)}</p>`;
+        return;
+    }
+
+    const statusMarkup = statusText
+        ? `<p class="result-status ${statusClass}">${escapeHtml(statusText)}</p>`
+        : '';
+    const outputMarkup = output
+        ? `<textarea id="testResultsOutput" readonly>${escapeHtml(output)}</textarea>`
+        : '<p class="result-placeholder">Geen uitvoer beschikbaar</p>';
+
+    resultsPanel.innerHTML = `${statusMarkup}${outputMarkup}`;
 }
 
 function copyCode() {
