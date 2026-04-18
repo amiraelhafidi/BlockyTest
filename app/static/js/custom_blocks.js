@@ -34,7 +34,7 @@ Blockly.Blocks['assert_title'] = {
   init: function () {
     this.appendDummyInput()
         .appendField("Assert title")
-        .appendField(new Blockly.FieldTextInput("HvA"), "EXPECTED_TITLE");
+        .appendField(new Blockly.FieldTextInput("HvA"), "TITLE");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(160);
@@ -42,8 +42,8 @@ Blockly.Blocks['assert_title'] = {
 };
 
 Blockly.Python.forBlock['assert_title'] = function(block) {
-  const expectedTitle = block.getFieldValue('EXPECTED_TITLE');
-  return `assert driver.title == ${JSON.stringify(expectedTitle)}\n`;
+  const title = block.getFieldValue('TITLE');
+  return `assert driver.title == ${JSON.stringify(title)}\n`;
 };
 
 Blockly.Python.forBlock['wait_seconds'] = function(block) {

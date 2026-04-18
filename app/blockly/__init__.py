@@ -1,4 +1,4 @@
-"""Initialisatie en helpers voor Blockly testruns."""
+"""Initialisatie en helpfuncties voor Blockly testruns."""
 
 from datetime import datetime
 

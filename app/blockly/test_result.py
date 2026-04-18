@@ -79,3 +79,7 @@ class TestResult:
             "gefaald": self.counts["gefaald"],
             "output": "\n".join(self.output_lines) + error_output,
         }
+
+
+
+import subprocess

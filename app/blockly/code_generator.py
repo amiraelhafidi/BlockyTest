@@ -10,7 +10,7 @@ BLOCK_MAP = {
     "open_browser": ("Open Browser", ["URL", "BROWSER"]),
     "maximize_window": ("Maximize Browser Window", []),
     "wait_seconds": ("Sleep", ["SECONDS"]),
-    "assert_title": ("Title Should Be", ["EXPECTED_TITLE"]),
+    "assert_title": ("Title Should Be", ["TITLE"]),
     "close_browser": ("Close Browser", []),
 }
 
@@ -24,14 +24,8 @@ def xml_to_robot(xml_text: str) -> tuple[str, str]:
 
     Returns:
         tuple[str, str]: Preview code en volledig Robot bestand.
-
-    Raises:
-        ValueError: Als de XML niet geldig is.
     """
-    try:
-        root = ET.fromstring(xml_text)
-    except ET.ParseError as error:
-        raise ValueError(f"Ongeldige XML: {error}")
+    root = ET.fromstring(xml_text)
 
     # Gebruik de translator class om de regels op te bouwen.
     translator = RobotTranslator(root=root, block_map=BLOCK_MAP)
