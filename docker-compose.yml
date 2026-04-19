@@ -1,6 +1,9 @@
 services:
   dokkie-image:
     build: .
-    ports: 
+    image: blockytest
+    ports:
       - "5000:5000"
     container_name: de-opdracht-container
+    env_file:
+      - .env
