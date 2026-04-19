@@ -9,6 +9,14 @@ repository = ProjectRepository()
 
 
 def get_database_error(result):
+    """Haal een foutmelding uit het database-resultaat als die bestaat.
+
+    Args:
+        result (dict | list | None): Antwoord van de database-API.
+
+    Returns:
+        str | None: Foutmelding uit het resultaat of None als er geen fout is.
+    """
     if not isinstance(result, dict):
         return None
 
