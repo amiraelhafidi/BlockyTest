@@ -66,3 +66,7 @@ def update_testrun_result(
                       VALUES (?, ?, ?, ?)"""
     created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     execute_query(query_report, (testrun_id, passed, failed, created_at))
+
+
+# Import routes zodat de endpoints geregistreerd worden
+from app.blockly import routes
