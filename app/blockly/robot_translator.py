@@ -5,24 +5,23 @@ import xml.etree.ElementTree as ET
 
 class RobotTranslator:
     """
-    Vertaalt Blocky XML naar Robot Framework code.
+    Zet Blockly XML blokken om naar Robot Framework regels.
 
-    Attributes:
-        root (ET.Element): Het root XML element.
-        block_map (dict[str, tuple[str, list[str]]]): Koppeling van bloktype naar keyword.
-        code_lines (list[str]): Opgebouwde Robot regels.
+    Deze vertaler leest XML van Blockly en vertaalt elk blok naar
+    een Robot Framework keyword met parameters. De blokken worden
+    in volgorde verwerkt en samengesteld tot een lijst regels.
     """
 
     def __init__(self, root: ET.Element, block_map: dict[str, tuple[str, list[str]]]) -> None:
         """
-        Maakt een nieuwe vertaler.
+        Maak een nieuwe vertaler voor XML blokken.
 
         Args:
-            root (ET.Element): Het root XML element.
-            block_map (dict[str, tuple[str, list[str]]]): Koppeling van bloktype naar keyword.
+            root (ET.Element): Root XML element van Blockly workspace
+            block_map: Woordenboek dat bloktype koppelt aan Robot keyword
 
         Returns:
-            None: Deze constructor geeft niets terug.
+            None
         """
         self.root = root
         self.block_map = block_map
@@ -30,26 +29,27 @@ class RobotTranslator:
 
     def tag_name(self, element: ET.Element) -> str:
         """
-        Geeft de tagnaam terug zonder XML namespace.
+        Haal XML tagnaam op zonder namespace.
 
         Args:
-            element (ET.Element): XML element waarvan de tag nodig is.
+            element (ET.Element): XML element waarvan je de naam wilt
 
         Returns:
-            str: Tagnaam zonder namespace.
+            str: Tagnaam zonder namespace voorgevoegd
         """
+        # XML namespaces zien er uit als "{namespace}tagname", we willen alleen "tagname"
         return element.tag.split("}")[-1]
 
     def child(self, element: ET.Element, tag_name: str) -> ET.Element | None:
         """
-        Zoekt een direct child element op tagnaam.
+        Zoek één directe child element met deze naam.
 
         Args:
-            element (ET.Element): Het parent XML element.
-            tag_name (str): De gezochte tagnaam.
+            element (ET.Element): Het parent XML element
+            tag_name (str): Naam van het child element dat je zoekt
 
         Returns:
-            ET.Element | None: Het gevonden child element of None.
+            ET.Element | None: Het gevonden element of None
         """
         for child in element:
             if self.tag_name(child) == tag_name:
@@ -58,28 +58,29 @@ class RobotTranslator:
 
     def children(self, element: ET.Element, tag_name: str) -> list[ET.Element]:
         """
-        Zoekt alle directe child elementen op tagnaam.
+        Zoek alle directe child elementen met deze naam.
 
         Args:
-            element (ET.Element): Het parent XML element.
-            tag_name (str): De gezochte tagnaam.
+            element (ET.Element): Het parent XML element
+            tag_name (str): Naam van de child elementen die je zoekt
 
         Returns:
-            list[ET.Element]: Lijst met gevonden child elementen.
+            list[ET.Element]: Lijst met alle gevonden elementen
         """
         return [child for child in element if self.tag_name(child) == tag_name]
 
     def get_field(self, block: ET.Element, field_name: str) -> str:
         """
-        Haalt de waarde van een veld uit een blok.
+        Haal een veldwaarde uit een Blockly blok.
 
         Args:
-            block (ET.Element): Het Blocky blok.
-            field_name (str): Naam van het veld.
+            block (ET.Element): Het Blockly blok
+            field_name (str): Naam van het veld (bijv. "URL", "SECONDS")
 
         Returns:
-            str: De veldwaarde of een lege string.
+            str: De veldwaarde of lege string als niet gevonden
         """
+        # Blockly blokken hebben <field> elementen met naam en waarde
         for field in self.children(block, "field"):
             if field.get("name") == field_name and field.text:
                 return field.text.strip()
@@ -87,48 +88,53 @@ class RobotTranslator:
 
     def build_line(self, block: ET.Element) -> str | None:
         """
-        Zet één blok om naar één Robot regel.
+        Zet één Blockly blok om naar één Robot Framework regel.
 
         Args:
-            block (ET.Element): Het Blocky blok.
+            block (ET.Element): Het Blockly blok om om te zetten
 
         Returns:
-            str | None: De Robot regel of None bij een onbekend blok.
+            str | None: Robot regel als bekend bloktype, anders None
         """
         block_type = block.get("type")
 
+        # Controleer of dit bloktype bekend is in BLOCK_MAP
         if block_type not in self.block_map:
-            # Onbekende blokken slaan we over.
             return None
 
+        # Haal keyword en veldnamen op uit de mapping
         keyword, fields = self.block_map[block_type]
+        # Verzamel alle veldwaarden voor dit blok
         args = [self.get_field(block, field_name) for field_name in fields]
 
-        # Sleep moet altijd eindigen op seconden.
+        # Robot Framework Sleep keyword moet eindigen met "s" voor seconden
         if block_type == "wait_seconds" and args and not args[0].endswith("s"):
             args[0] += "s"
 
+        # Bouw de regel: keyword + arguments met juiste indentatie
         parts = [keyword] + args
         return "    " + "    ".join(parts)
 
     def build_lines(self) -> list[str]:
         """
-        Leest alle blokken in de workspace en zet ze om naar Robot regels.
+        Zet alle Blockly blokken om naar Robot Framework regels.
 
         Returns:
-            list[str]: Lijst met Robot regels.
+            list[str]: Alle Robot regels in volgorde
         """
         self.code_lines = []
 
+        # Blokken vormen ketens: elk blok kan een "next" element hebben met het volgende blok
+        # We verwerken alle top-level blokken en volgen de ketens
         for top_block in self.children(self.root, "block"):
-            # Loop door de hele blokketen via <next>.
             current = top_block
+            # Volg de blokketen tot het einde
             while current is not None:
                 line = self.build_line(current)
                 if line:
                     self.code_lines.append(line)
 
-                # Pak het volgende blok uit de keten.
+                # Zoek het volgende blok in de keten via het <next> element
                 next_element = self.child(current, "next")
                 current = self.child(next_element, "block") if next_element is not None else None
 
