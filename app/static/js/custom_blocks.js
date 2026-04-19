@@ -1,0 +1,61 @@
+Blockly.Blocks['close_browser'] = {
+  init: function () {
+    this.appendDummyInput()
+        .appendField("Close Browser");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(160);
+  }
+};
+
+Blockly.Blocks['maximize_window'] = {
+  init: function () {
+    this.appendDummyInput()
+        .appendField("Maximize Window");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(160);
+  }
+};
+
+Blockly.Blocks['wait_seconds'] = {
+  init: function () {
+    this.appendDummyInput()
+        .appendField("Wait")
+        .appendField(new Blockly.FieldNumber(1, 0), "SECONDS")
+        .appendField("seconds");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(160);
+  }
+};
+
+Blockly.Blocks['assert_title'] = {
+  init: function () {
+    this.appendDummyInput()
+        .appendField("Assert title")
+        .appendField(new Blockly.FieldTextInput("HvA"), "EXPECTED_TITLE");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(160);
+  }
+};
+
+Blockly.Python.forBlock['assert_title'] = function(block, generator) {
+  const expectedTitle = block.getFieldValue('EXPECTED_TITLE');
+  return `Title Should Be ${expectedTitle}\n`;
+};
+
+Blockly.Python.forBlock['wait_seconds'] = function(block, generator) {
+  const seconds = block.getFieldValue('SECONDS');
+  return `Sleep ${seconds}s\n`;
+};
+
+// Code generators
+Blockly.Python.forBlock['close_browser'] = function(block, generator) {
+  return 'Close Browser\n';
+};
+
+Blockly.Python.forBlock['maximize_window'] = function(block, generator) {
+  return 'Maximize Browser Window\n';
+};
