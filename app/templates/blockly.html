@@ -203,6 +203,11 @@ function runTest() {
     });
 }
 
+document.getElementById("clearWorkspaceBtn").addEventListener("click", function () {
+   if (!confirm("Weet je zeker dat je alles wilt verwijderen?")) return;
+   workspace.clear();
+});
+
 function escapeHtml(value) {
     return String(value ?? '')
         .replace(/&/g, '&amp;')
