@@ -1,16 +1,15 @@
-"""Class voor het opbouwen van een testresultaat."""
+"""Klasse voor het opbouwen van een testresultaat."""
 
 import subprocess
 
 
 class TestResult:
     """
-    Houdt het resultaat van een Blocky testrun bij.
+    Hou het resultaat van een Robot test bij.
 
-    Attributes:
-        return_code (int): Exit code van de test.
-        counts (dict[str, int]): Aantallen geslaagd en gefaald.
-        output_lines (list[str]): Regels van de opgeschoonde output.
+    Deze klasse verzamelt de testresultaten van een Robot Framework
+    test run. Het parsed de output om geslaagde en gefaalde tests
+    te tellen, en bewaart alle output regels.
     """
 
     def __init__(
@@ -20,15 +19,15 @@ class TestResult:
         output_lines: list[str],
     ) -> None:
         """
-        Maakt een nieuw testresultaat.
+        Maak een testresultaat object.
 
         Args:
-            return_code (int): Exit code van de test.
-            counts (dict[str, int]): Aantallen geslaagd en gefaald.
-            output_lines (list[str]): Regels van de output.
+            return_code (int): Exit code van het test process
+            counts (dict[str, int]): Teller met "geslaagd" en "gefaald"
+            output_lines (list[str]): Test output regels
 
         Returns:
-            None: Deze constructor geeft niets terug.
+            None
         """
         self.return_code = return_code
         self.counts = counts
@@ -37,14 +36,18 @@ class TestResult:
     @classmethod
     def from_process(cls, result: subprocess.CompletedProcess[str]) -> "TestResult":
         """
-        Maakt een TestResult van een subprocess resultaat.
+        Maak TestResult uit Robot test output.
+
+        Parse de Robot Framework output om geslaagde en gefaalde tests
+        te tellen. Verwijdert debug-output lines.
 
         Args:
-            result (subprocess.CompletedProcess[str]): Uitkomst van de test-run.
+            result (subprocess.CompletedProcess[str]): Robot test output
 
         Returns:
-            TestResult: Nieuw opgebouwd testresultaat.
+            TestResult: Nieuw TestResult object met getelde resultaten
         """
+        # Verwijder debug-output regels die niet relevant zijn
         hidden_keywords = {"Output:", "Log:", "Report:"}
         output_lines = [
             line
@@ -52,6 +55,7 @@ class TestResult:
             if not any(keyword in line for keyword in hidden_keywords)
         ]
 
+        # Tel hoeveel tests geslaagd zijn (PASS) en gefaald (FAIL)
         counts = {
             "geslaagd": result.stdout.count("| PASS |"),
             "gefaald": result.stdout.count("| FAIL |"),
@@ -65,21 +69,18 @@ class TestResult:
 
     def to_dict(self, error_output: str = "") -> dict:
         """
-        Zet het testresultaat om naar een dictionary voor JSON.
+        Zet testresultaat om naar dictionary voor JSON response.
 
         Args:
-            error_output (str): Extra stderr output.
+            error_output (str): Extra foutmeldingen om toe te voegen
 
         Returns:
-            dict: Resultaat voor de API response.
+            dict: Testresultaat met return_code, tellers en output
         """
         return {
             "return_code": self.return_code,
             "geslaagd": self.counts["geslaagd"],
             "gefaald": self.counts["gefaald"],
+            # Voeg error_output toe aan het einde van de output
             "output": "\n".join(self.output_lines) + error_output,
         }
-
-
-
-import subprocess

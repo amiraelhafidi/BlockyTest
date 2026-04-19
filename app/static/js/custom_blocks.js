@@ -41,21 +41,24 @@ Blockly.Blocks['assert_title'] = {
   }
 };
 
+// Genereert Python code om de browser titel te controleren
 Blockly.Python.forBlock['assert_title'] = function(block) {
   const title = block.getFieldValue('TITLE');
   return `assert driver.title == ${JSON.stringify(title)}\n`;
 };
 
+// Genereert Python code om te wachten voor een bepaald aantal seconden
 Blockly.Python.forBlock['wait_seconds'] = function(block) {
   const seconds = block.getFieldValue('SECONDS');
   return `time.sleep(${seconds})\n`;
 };
 
-// Code generators
+// Genereert Python code om de browser te sluiten
 Blockly.Python.forBlock['close_browser'] = function(block) {
   return 'driver.close()\n';
 };
 
+// Genereert Python code om het browser venster te maximaliseren
 Blockly.Python.forBlock['maximize_window'] = function(block) {
   return 'driver.maximize_window()\n';
 };
