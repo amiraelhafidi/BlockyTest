@@ -1,124 +1,117 @@
-from flask import flash, render_template, request, redirect, url_for
-from app.db import execute_query
-from app.Overzichtspagina import bp
+from flask import flash, redirect, render_template, request, url_for
 
-@bp.route('/projects')
+from app.Overzichtspagina import bp
+from app.Overzichtspagina.project_form import ProjectForm
+from app.Overzichtspagina.project_repository import ProjectRepository
+
+
+repository = ProjectRepository()
+
+
+def get_database_error(result):
+    if not isinstance(result, dict):
+        return None
+
+    return result.get("error") or result.get("reason")
+
+
+@bp.route("/")
 def overview():
     """
     Render the project overview page with all projects ordered by newest first.
     """
-    query = "SELECT * FROM testflow ORDER BY created_at DESC"
-    result = execute_query(query)
+    projects = repository.get_all()
+    return render_template(
+        "projects.html",
+        projects=[project.to_template_dict() for project in projects],
+    )
 
-    projects = result if isinstance(result, list) else []
 
-    return render_template('projects.html', projects=projects)
+@bp.route("/projects")
+def legacy_overview():
+    """
+    Keep the old /projects/projects URL working and redirect to the clean overview URL.
+    """
+    return redirect(url_for("projects.overview"))
 
 
-@bp.route('/project/<int:id>')
-def project_detail(id):
+@bp.route("/project/<int:project_id>")
+def project_detail(project_id):
     """
     Return the detail view for a single project.
     """
-    return f"Project detail page for project {id}"
+    return f"Project detail page for project {project_id}"
 
 
-@bp.route('/delete/<int:id>', methods=['POST'])
+@bp.route("/delete/<int:id>", methods=["POST"])
 def delete_project(id):
     """
     Delete a project by its ID and redirect back to the overview page.
     """
-     # 1) Probeer het project te verwijderen
-    query = "DELETE FROM testflow WHERE testflow_id = ?"
-    result = execute_query(query, [id])
-    # 2) Controleer op databasefouten
-    error = result.get("error") or result.get("reason") if isinstance(result, dict) else None
+    result = repository.delete(id)
+    error = get_database_error(result)
+
     if error:
         flash("Dit project kan niet worden verwijderd omdat er nog gegevens aan gekoppeld zijn.", "error")
-        return redirect(url_for('projects.overview'))
+        return redirect(url_for("projects.overview"))
 
     flash("Project succesvol verwijderd", "success")
-     # 3) Ga terug naar overzicht
-    return redirect(url_for('projects.overview'))
+    return redirect(url_for("projects.overview"))
 
 
-@bp.route('/edit/<int:id>', methods=['GET', 'POST'])
+@bp.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit_project(id):
     """
     Show the edit form for an existing project and handle updates.
     """
-    # 1) Haal het bestaande project op
-    query = "SELECT * FROM testflow WHERE testflow_id = ?"
-    result = execute_query(query, [id])
+    project = repository.get_by_id(id)
 
-    if not isinstance(result, list) or not result:
+    if not project:
         flash("Project niet gevonden", "error")
-        return redirect(url_for('projects.overview'))
+        return redirect(url_for("projects.overview"))
 
-    project = result[0]
+    if request.method == "POST":
+        form = ProjectForm(request.form)
 
-    if request.method == 'POST':
-        # 2) Lees en valideer ingevulde waarden
-        name = request.form.get('name', '').strip()
-        description = request.form.get('description', '').strip()
+        if not form.validate():
+            flash(form.errors[0], "error")
+            return render_template("add_project.html", is_edit=True, project=form.to_project(id, project.status))
 
-        if not name:
-            flash("Projectnaam is verplicht", "error")
-            return render_template('add_project.html', is_edit=True, project={'name': name, 'description': description})
+        updated_project = form.to_project(testflow_id=id, status=project.status)
+        result = repository.update(updated_project)
+        error = get_database_error(result)
 
-        # 3) Werk het project bij in de database
-        update_query = "UPDATE testflow SET name = ?, description = ? WHERE testflow_id = ?"
-        update_result = execute_query(update_query, [name, description, id])
-
-        # 4) Toon foutmelding als update mislukt
-        error = update_result.get("error") or update_result.get("reason") if isinstance(update_result, dict) else None
         if error:
             flash(f"Databasefout: {error}", "error")
-            return render_template('add_project.html', is_edit=True, project={'name': name, 'description': description})
+            return render_template("add_project.html", is_edit=True, project=updated_project)
 
-        # 5) Bij succes terug naar overzicht
         flash("Project succesvol bijgewerkt", "success")
-        return redirect(url_for('projects.overview'))
+        return redirect(url_for("projects.overview"))
 
-    # GET: laat formulier zien met bestaande projectwaarden
-    return render_template(
-        'add_project.html',
-        is_edit=True,
-        project={'name': project.get('name', ''), 'description': project.get('description', '')}
-    )
+    return render_template("add_project.html", is_edit=True, project=project)
 
 
-@bp.route('/add', methods=['GET', 'POST']) 
+@bp.route("/add", methods=["GET", "POST"])
 def add_project():
     """
     Show the add-project form and handle creation of a new project.
-
-    On POST, validates the project name, inserts the record into the
-    database, and redirects to the overview page after a successful save.
     """
+    if request.method == "POST":
+        form = ProjectForm(request.form)
 
-    if request.method == 'POST':
-        # 1) Lees en valideer formulier
-        name = request.form.get('name', '').strip()
-        description = request.form.get('description')
-        if not name:
-            flash("Projectnaam is verplicht", "error")
-            return render_template('add_project.html', is_edit=False, project={'name': name, 'description': description})
+        if not form.validate():
+            flash(form.errors[0], "error")
+            return render_template("add_project.html", is_edit=False, project=form.to_project())
 
-        # 2) Sla het project op
-        query = "INSERT INTO testflow (name, description, user_id, status) VALUES (?, ?, ?, ?)"
-        result = execute_query(query, [name, description, 1, "nieuw"])
+        project = form.to_project()
+        result = repository.create(project)
+        error = get_database_error(result)
 
-        # 3) Toon foutmelding als insert mislukt
-        error = result.get("error") or result.get("reason") if isinstance(result, dict) else None
         if error:
             flash(f"Databasefout: {error}", "error")
-            return render_template('add_project.html', is_edit=False, project={'name': name, 'description': description})
+            return render_template("add_project.html", is_edit=False, project=project)
 
-        # 4) Bij succes terug naar overzicht
         flash("Project succesvol toegevoegd", "success")
+        return redirect(url_for("projects.overview"))
 
-        return redirect(url_for('projects.overview'))
-
-    # GET: leeg formulier tonen
-    return render_template('add_project.html', is_edit=False, project={'name': '', 'description': ''})
+    return render_template("add_project.html", is_edit=False, project={"name": "", "description": ""})
