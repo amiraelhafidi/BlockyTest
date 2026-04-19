@@ -1,7 +1,8 @@
 from flask import render_template, redirect, url_for, request, jsonify
 from app.main import bp
 from app.db import execute_query
-from app.blockly.blockly_editor.blockly_editor import BlocklyEditor
+from app.blockly_editor.blockly_editor import BlocklyEditor
+from app.blockly_editor.load_service import LoadService
 
 @bp.route("/")
 def index():
@@ -31,3 +32,9 @@ def save():
    return jsonify({
        "message": message
    })
+
+@bp.route("/blockly/load", methods=["GET"])
+def load():
+   loader = LoadService()
+   result = loader.load_latest()
+   return jsonify(result)
