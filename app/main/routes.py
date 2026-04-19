@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, request, jsonify
 from app.main import bp
 from app.db import execute_query
+from app.blockly.blockly_editor.blockly_editor import BlocklyEditor
 
 @bp.route("/")
 def index():
