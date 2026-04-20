@@ -9,7 +9,7 @@ class Project {
     +str name
     +str description
     +str status
-    +str create_at
+    +str created_at
     +list validation_errors
     +dict display_data
     +__init__(testflow_id, name, description, status, created_at)
