@@ -90,34 +90,18 @@ def get_robot_file(xml: str) -> str:
     return robot_file
 
 
-def get_testruns(project_id: str | None) -> list:
+def get_testruns() -> list:
     """
-    Haal testruns op uit database.
-
-    Filtert op project als project_id gegeven, anders alle testruns.
-
-    Args:
-        project_id (str | None): Project ID om op te filteren
+    Haal alle testruns op uit database.
 
     Returns:
         list: Testruns met testrun_id, status en started_at
     """
-    base_query = """SELECT
-                        tr.testrun_id,
-                        tr.status,
-                        tr.started_at
-                    FROM testrun tr"""
-
-    # Filter op project_id als die gegeven is
-    if project_id:
-        query = base_query + """
-                    WHERE tr.testflow_id = ?
-                    ORDER BY tr.started_at DESC
-                    LIMIT 100"""
-        return execute_query(query, [project_id])
-
-    # Haal alle testruns op
-    query = base_query + """
+    query = """SELECT
+                    tr.testrun_id,
+                    tr.status,
+                    tr.started_at
+                FROM testrun tr
                 ORDER BY tr.started_at DESC
                 LIMIT 100"""
     return execute_query(query)
@@ -154,12 +138,9 @@ def generate():
     if not xml.strip():
         return jsonify({"code": "", "robot_bestand": ""})
 
-    try:
-        # Vertaal XML naar Robot code
-        keywords_code, robot_file = xml_to_robot(xml)
-        return jsonify({"code": keywords_code, "robot_bestand": robot_file})
-    except ValueError as error:
-        return jsonify({"fout": str(error)}), 400
+    # Vertaal XML naar Robot code
+    keywords_code, robot_file = xml_to_robot(xml)
+    return jsonify({"code": keywords_code, "robot_bestand": robot_file})
 
 
 @bp.route("/download", methods=["POST"])
@@ -175,15 +156,8 @@ def download():
     # Maak bestandsnaam: spaties weg, lowercase
     project_name = data.get("project_name", "test").replace(" ", "_").lower()
 
-    # Valideer dat er XML is
-    if not xml.strip():
-        return jsonify({"fout": "Geen XML"}), 400
-
-    try:
-        # Genereer .robot file
-        robot_file = get_robot_file(xml)
-    except ValueError as error:
-        return jsonify({"fout": str(error)}), 400
+    # Genereer .robot file
+    robot_file = get_robot_file(xml)
 
     # Return file voor download
     return Response(
@@ -210,36 +184,22 @@ def run():
     data = request.get_json()
     xml = data.get("workspace_xml", "")
 
-    # Valideer dat er blokken zijn
-    if not xml.strip():
-        return jsonify({"fout": "Geen blokken om uit te voeren"}), 400
-
     # Genereer .robot file
-    try:
-        robot_file = get_robot_file(xml)
-        if not robot_file:
-            return jsonify({"fout": "Geen blokken om uit te voeren"}), 400
-    except ValueError as error:
-        return jsonify({"fout": str(error)}), 400
+    robot_file = get_robot_file(xml)
 
     # Maak testrun record (status = "running")
     testrun_id = create_testrun()
 
-    try:
-        # Voer de test uit
-        results = execute_robot_test(robot_file)
-        passed = results.get("geslaagd", 0)
-        failed = results.get("gefaald", 0)
-        # Bepaal status op basis van return_code
-        status = "passed" if results["return_code"] == 0 else "failed"
-        # Sla resultaten op in DB
-        update_testrun_result(testrun_id, status, passed, failed)
-        # Return resultaten naar frontend
-        return jsonify(results)
-    except RuntimeError as error:
-        # Update DB met fout status
-        update_testrun_result(testrun_id, "error", 0, 0)
-        return jsonify({"fout": str(error)}), 500
+    # Voer de test uit
+    results = execute_robot_test(robot_file)
+    passed = results.get("geslaagd", 0)
+    failed = results.get("gefaald", 0)
+    # Bepaal status op basis van return_code
+    status = "passed" if results["return_code"] == 0 else "failed"
+    # Sla resultaten op in DB
+    update_testrun_result(testrun_id, status, passed, failed)
+    # Return resultaten naar frontend
+    return jsonify(results)
 
 
 @bp.route("/geschiedenis")
@@ -252,15 +212,8 @@ def geschiedenis():
     Returns:
         Response: HTML pagina met testruns
     """
-    try:
-        # Haal project_id uit URL (optioneel filteren)
-        project_id = request.args.get("project_id")
-        # Query testruns met of zonder filter
-        testruns = get_testruns(project_id)
-        return render_template("testrun_history.html", testruns=testruns)
-    except Exception as error:
-        # Bij fout: toon lege geschiedenis met foutmelding
-        return render_template("testrun_history.html", testruns=[], error=str(error))
+    testruns = get_testruns()
+    return render_template("testrun_history.html", testruns=testruns)
 
 
 @bp.route("/save", methods=["POST"])
@@ -271,20 +224,17 @@ def save():
     Returns:
         Response: JSON met succes of fout
     """
-    try:
-        data = request.get_json()
-        workspace_xml = data.get("workspace_xml", "")
-        project_name = data.get("project_name", "Untitled Project")
+    data = request.get_json()
+    workspace_xml = data.get("workspace_xml", "")
+    project_name = data.get("project_name", "Untitled Project")
 
-        # Insert of update workspace
-        query = """INSERT INTO blockly_project (project_name, workspace_xml)
-                   VALUES (?, ?)
-                   ON DUPLICATE KEY UPDATE workspace_xml = VALUES(workspace_xml)"""
-        execute_query(query, (project_name, workspace_xml))
+    # Insert of update workspace
+    query = """INSERT INTO blockly_project (project_name, workspace_xml)
+               VALUES (?, ?)
+               ON DUPLICATE KEY UPDATE workspace_xml = VALUES(workspace_xml)"""
+    execute_query(query, (project_name, workspace_xml))
 
-        return jsonify({"success": True, "message": "Workspace opgeslagen"})
-    except Exception as error:
-        return jsonify({"success": False, "error": str(error)}), 500
+    return jsonify({"success": True, "message": "Workspace opgeslagen"})
 
 
 @bp.route("/load", methods=["GET"])
@@ -295,12 +245,9 @@ def load():
     Returns:
         Response: JSON met workspace XML of fout
     """
-    try:
-        # Haal meest recente workspace op
-        query = "SELECT workspace_xml FROM blockly_project ORDER BY id DESC LIMIT 1"
-        result = execute_query(query)
-        # Extraheer XML of lege string
-        workspace_xml = result[0].get("workspace_xml", "") if result else ""
-        return jsonify({"workspace_xml": workspace_xml})
-    except Exception as error:
-        return jsonify({"error": str(error)}), 500
+    # Haal meest recente workspace op
+    query = "SELECT workspace_xml FROM blockly_project ORDER BY id DESC LIMIT 1"
+    result = execute_query(query)
+    # Extraheer XML of lege string
+    workspace_xml = result[0].get("workspace_xml", "") if result else ""
+    return jsonify({"workspace_xml": workspace_xml})
