@@ -15,6 +15,7 @@ def about():
 @bp.route('/blockly/save', methods=['POST'])
 def save():
    data = request.get_json()
+   print("SAVE DATA:", data)
    xml = data.get('workspace_xml')
    source = data.get('source', 'manual')
    query = """
@@ -23,11 +24,7 @@ def save():
    """
    project_name = "Autosave project" if source == "autosave" else "Project"
    result = execute_query(query, [project_name, xml])
-   if isinstance(result, dict) and "reason" in result:
-       return jsonify({
-           "message": "Opslaan mislukt",
-           "result": result
-       }), 400
+   print("SAVE RESULT:", result)
    message = "Automatisch opgeslagen" if source == "autosave" else "Opgeslagen in database"
    return jsonify({
        "message": message
