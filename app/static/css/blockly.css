@@ -355,3 +355,32 @@ h1 {
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
     font-size: 11px;
 }
+
+.blocklyToolboxDiv {
+    width: 220px !important;
+    background-color: #f4f6fb !important;
+}
+
+.blocklyTreeRow {
+    height: 50px !important;
+    display: flex !important;
+    align-items: center !important;
+    border-radius: 12px !important;
+    margin: 6px 10px !important;
+    padding-left: 12px !important;
+    font-weight: bold !important;
+}
+
+.blocklyTreeSelected {
+    background-color: #dbe4ff !important;
+}
+
+.blocklyTreeIcon {
+    width: 6px !important;
+    height: 30px !important;
+    border-radius: 4px !important;
+}
+
+.blocklyFlyout {
+    width: 300px !important;
+}
