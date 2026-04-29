@@ -60,14 +60,28 @@
 </div>
 
 <xml id="toolbox">
-    <block type="controls_if"></block>
-    <block type="logic_compare"></block>
-    <block type="math_number"></block>
-    <block type="text"></block>
-    <block type="close_browser"></block>
-    <block type="maximize_window"></block>
-    <block type="wait_seconds"></block>
-    <block type="assert_title"></block>
+    <category name="Logica" colour="210">
+        <block type="controls_if"></block>
+        <block type="logic_compare"></block>
+    </category>
+
+    <category name="Waarden" colour="120">
+        <block type="math_number"></block>
+        <block type="text"></block>
+    </category>
+
+    <category name="Browser acties" colour="160">
+        <block type="close_browser"></block>
+        <block type="maximize_window"></block>
+    </category>
+
+    <category name="Wachten" colour="230">
+        <block type="wait_seconds"></block>
+    </category>
+
+    <category name="Controles" colour="20">
+        <block type="assert_title"></block>
+    </category>
 </xml>
 
 <script>
