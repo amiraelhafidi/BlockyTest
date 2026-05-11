@@ -1,4 +1,6 @@
-// Blockly blokken definities
+// Custom blocks for browser actions
+
+// Custom blocks to close the browser
 Blockly.Blocks['close_browser'] = {
   init: function () {
     this.appendDummyInput()
@@ -9,6 +11,7 @@ Blockly.Blocks['close_browser'] = {
   }
 };
 
+// Custom block to maximize the browser window
 Blockly.Blocks['maximize_window'] = {
   init: function () {
     this.appendDummyInput()
@@ -19,6 +22,7 @@ Blockly.Blocks['maximize_window'] = {
   }
 };
 
+// Custom blocks to wait for a certain number of seconds
 Blockly.Blocks['wait_seconds'] = {
   init: function () {
     this.appendDummyInput()
@@ -31,6 +35,7 @@ Blockly.Blocks['wait_seconds'] = {
   }
 };
 
+// Custom block to assert the browser title
 Blockly.Blocks['assert_title'] = {
     init: function () {
         this.appendDummyInput()
