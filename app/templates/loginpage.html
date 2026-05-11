@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inloggen - BlockyTest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/projects.css') }}">
+</head>
+<body>
+
+<header class="nav_bar">
+    <div class="nav_left">
+        <img src="{{ url_for('static', filename='img/image.png') }}" alt="BlockyTest logo" class="header_logo">
+        <h1 class="logo_text">BlockyTest</h1>
+    </div>
+    {% if session.get('user_id') %}
+    <div class="nav_right">
+        <a href="{{ url_for('projects.logout') }}">Uitloggen</a>
+    </div>
+    {% endif %}
+</header>
+
+<div class="form_page">
+    <div class="form_box">
+        <h2 class="form_title">Inloggen</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash_messages">
+                {% for category, message in messages %}
+                    <div class="flash_message flash_{{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('projects.login') }}" novalidate>
+            <label for="username_or_email">Gebruikersnaam of e-mailadres:</label>
+            <input
+                type="text"
+                id="username_or_email"
+                name="username_or_email"
+                value="{{ username_or_email }}"
+                autocomplete="username"
+            >
+
+            <label for="password">Wachtwoord:</label>
+            <input type="password" id="password" name="password" autocomplete="current-password">
+
+            <div class="form_buttons">
+                <button type="submit">Inloggen</button>
+                <a href="{{ url_for('projects.register') }}" class="go_back">Account aanmaken</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

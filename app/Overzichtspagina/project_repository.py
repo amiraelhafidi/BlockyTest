@@ -21,6 +21,18 @@ class ProjectRepository:
 
         return [Project.from_row(row) for row in result]
 
+    def get_for_user(self, user_id):
+        """
+        Haal projecten op die bij een gebruiker horen.
+        """
+        query = "SELECT * FROM testflow WHERE user_id = ? ORDER BY created_at DESC"
+        result = execute_query(query, [user_id])
+
+        if not isinstance(result, list):
+            return []
+
+        return [Project.from_row(row) for row in result]
+
     def get_by_id(self, project_id):
         """Haal een project op via het testflow_id.
 
@@ -38,7 +50,7 @@ class ProjectRepository:
 
         return Project.from_row(result[0])
 
-    def create(self, project):
+    def create(self, project, user_id):
         """Sla een nieuw project op in de testflow-tabel.
 
         Args:
@@ -48,7 +60,7 @@ class ProjectRepository:
             dict: Antwoord van de database-API.
         """
         query = "INSERT INTO testflow (name, description, user_id, status) VALUES (?, ?, ?, ?)"
-        return execute_query(query, [project.name, project.description, 1, project.status])
+        return execute_query(query, [project.name, project.description, user_id, project.status])
 
     def update(self, project):
         """Werk de naam en beschrijving van een bestaand project bij.

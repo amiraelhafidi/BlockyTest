@@ -13,6 +13,10 @@
         <img src="{{ url_for('static', filename='img/image.png') }}" alt="Logo" class="header_logo">
         <h1 class="logo_text">BlockyTest</h1>
     </div>
+    <div class="nav_right">
+        <a href="{{ url_for('projects.register') }}">Registreren</a>
+        <a href="{{ url_for('projects.logout') }}">Uitloggen</a>
+    </div>
 </header>
 
 <main>
@@ -28,7 +32,7 @@
 {% endwith %}
 
 <div class="projects_header">
-    <h2>Mijn projecten</h2>
+    <h2>{{ title }}</h2>
     <a href="{{ url_for('projects.add_project') }}" class="add_button">+</a>
 </div>
 

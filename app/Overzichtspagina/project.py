@@ -7,7 +7,7 @@ Een Project object stelt een rij uit de database-tabel testflow voor.
 class Project:
     """Bewaart projectdata en gedrag dat bij een project hoort."""
 
-    def __init__(self, testflow_id, name, description, status="nieuw", created_at=None):
+    def __init__(self, testflow_id, name, description, status="nieuw", created_at=None, user_id=None):
         """Maak een Project object met data uit het formulier of de database.
 
         Args:
@@ -22,6 +22,7 @@ class Project:
         self.description = description
         self.status = status
         self.created_at = created_at
+        self.user_id = user_id
 
         self.validation_errors = []
         self.display_data = {
@@ -55,6 +56,7 @@ class Project:
             "description": self.description,
             "status": self.status,
             "created_at": self.created_at,
+            "user_id": self.user_id,
         }
 
     @classmethod
@@ -73,4 +75,5 @@ class Project:
             description=row.get("description", ""),
             status=row.get("status", "nieuw"),
             created_at=row.get("created_at"),
+            user_id=row.get("user_id"),
         )

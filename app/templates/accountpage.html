@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mijn account - BlockyTest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/projects.css') }}">
+</head>
+<body>
+
+<header class="nav_bar">
+    <div class="nav_left">
+        <img src="{{ url_for('static', filename='img/image.png') }}" alt="BlockyTest logo" class="header_logo">
+        <h1 class="logo_text">BlockyTest</h1>
+    </div>
+</header>
+
+<div class="form_page">
+    <div class="form_box">
+        <h2 class="form_title">Mijn account</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash_messages">
+                {% for category, message in messages %}
+                    <div class="flash_message flash_{{ category }}">{{ message }}</div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <p><strong>Gebruikersnaam:</strong> {{ user.name }}</p>
+        <p><strong>E-mailadres:</strong> {{ user.email }}</p>
+        <p><strong>Rol:</strong> {{ user.role }}</p>
+
+        <h3>Wachtwoord wijzigen</h3>
+        <form method="POST" novalidate>
+            <input type="hidden" name="action" value="change_password">
+
+            <label for="current_password">Huidig wachtwoord:</label>
+            <input type="password" id="current_password" name="current_password">
+
+            <label for="new_password">Nieuw wachtwoord:</label>
+            <input type="password" id="new_password" name="new_password">
+
+            <div class="form_buttons">
+                <button type="submit">Wachtwoord wijzigen</button>
+            </div>
+        </form>
+
+        <h3>Account verwijderen</h3>
+        <form method="POST">
+            <input type="hidden" name="action" value="delete_account">
+
+            <div class="form_buttons">
+                <button type="submit">Account verwijderen</button>
+                <a href="{{ url_for('projects.overview') }}" class="go_back">Terug naar projecten</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

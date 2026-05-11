@@ -10,6 +10,7 @@ def create_app():
     app.config['API_URL'] = os.getenv('API_URL')
     app.config['API_KEY'] = os.getenv('API_KEY')
     app.config['DATABASE'] = os.getenv('DATABASE')
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
     
     from app.main import bp as main_bp
     from app.Overzichtspagina import bp as projects_bp
