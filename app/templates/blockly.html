@@ -60,21 +60,39 @@
 </div>
 
 <xml id="toolbox">
-    <block type="controls_if"></block>
-    <block type="logic_compare"></block>
-    <block type="math_number"></block>
-    <block type="text"></block>
-    <block type="close_browser"></block>
-    <block type="maximize_window"></block>
-    <block type="wait_seconds"></block>
-    <block type="assert_title"></block>
+    <category name="Structuur" colour="#F2C94C">
+        <block type="controls_if"></block>
+        <block type="logic_compare"></block>
+    </category>
+
+    <category name="Browser" colour="#2D9CDB">
+        <block type="close_browser"></block>
+        <block type="maximize_window"></block>
+    </category>
+
+    <category name="Acties" colour="#F2994A">
+        <block type="wait_seconds"></block>
+    </category>
+
+    <category name="Controleren" colour="#27AE60">
+        <block type="assert_title"></block>
+    </category>
+
+    <category name="Waarden" colour="#828282">
+        <block type="text"></block>
+        <block type="math_number"></block>
+    </category>
 </xml>
 
 <script>
 let saveTimeout;
 
-const workspace = Blockly.inject('blocklyDiv', { 
-    toolbox: document.getElementById('toolbox') });
+const workspace = Blockly.inject('blocklyDiv', {
+    toolbox: document.getElementById('toolbox'),
+    renderer: 'zelos',
+    trashcan: true,
+    scrollbars: true
+});
 
 const pythonCodeField = document.getElementById('pythonCode');
 
