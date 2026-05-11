@@ -1,5 +1,24 @@
 // Custom blocks for browser actions
 
+
+// Custom block to open a new browser session
+Blockly.Blocks['open_browser'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField("Open Browser");
+
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(210);
+    }
+};
+
+// Generates Python code to open a new browser session
+Blockly.Python.forBlock['open_browser'] = function(block, generator) {
+    return '# Open een nieuwe browser sessie\n' +
+           'driver = webdriver.Chrome()\n';
+};
+
 // Custom blocks to close the browser
 Blockly.Blocks['close_browser'] = {
   init: function () {
