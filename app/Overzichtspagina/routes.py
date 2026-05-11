@@ -1,11 +1,19 @@
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, session, url_for
 
 from app.Overzichtspagina import bp
+from app.Overzichtspagina.loginroutes import is_admin
 from app.Overzichtspagina.project_form import ProjectForm
 from app.Overzichtspagina.project_repository import ProjectRepository
 
 
 repository = ProjectRepository()
+
+
+def can_change_project(project):
+    """
+    Admins mogen alle projecten aanpassen. Gebruikers alleen hun eigen projecten.
+    """
+    return is_admin() or project.user_id == session.get("user_id")
 
 
 def get_database_error(result):
@@ -28,10 +36,17 @@ def overview():
     """
     Render the project overview page with all projects ordered by newest first.
     """
-    projects = repository.get_all()
+    if is_admin():
+        projects = repository.get_all()
+        title = "Alle projecten"
+    else:
+        projects = repository.get_for_user(session.get("user_id"))
+        title = "Mijn projecten"
+
     return render_template(
         "projects.html",
         projects=[project.to_template_dict() for project in projects],
+        title=title,
     )
 
 
@@ -48,6 +63,16 @@ def project_detail(project_id):
     """
     Return the detail view for a single project.
     """
+    project = repository.get_by_id(project_id)
+
+    if not project:
+        flash("Project niet gevonden", "error")
+        return redirect(url_for("projects.overview"))
+
+    if not can_change_project(project):
+        flash("Je mag dit project niet bekijken.", "error")
+        return redirect(url_for("projects.overview"))
+
     return f"Project detail page for project {project_id}"
 
 
@@ -56,6 +81,16 @@ def delete_project(id):
     """
     Delete a project by its ID and redirect back to the overview page.
     """
+    project = repository.get_by_id(id)
+
+    if not project:
+        flash("Project niet gevonden", "error")
+        return redirect(url_for("projects.overview"))
+
+    if not can_change_project(project):
+        flash("Je mag dit project niet verwijderen.", "error")
+        return redirect(url_for("projects.overview"))
+
     result = repository.delete(id)
     error = get_database_error(result)
 
@@ -76,6 +111,10 @@ def edit_project(id):
 
     if not project:
         flash("Project niet gevonden", "error")
+        return redirect(url_for("projects.overview"))
+
+    if not can_change_project(project):
+        flash("Je mag dit project niet bewerken.", "error")
         return redirect(url_for("projects.overview"))
 
     if request.method == "POST":
@@ -112,7 +151,7 @@ def add_project():
             return render_template("add_project.html", is_edit=False, project=form.to_project())
 
         project = form.to_project()
-        result = repository.create(project)
+        result = repository.create(project, session.get("user_id"))
         error = get_database_error(result)
 
         if error:

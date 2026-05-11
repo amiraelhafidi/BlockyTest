@@ -1,12 +1,11 @@
 from flask import render_template, redirect, url_for, request, jsonify
 from app.main import bp
 from app.db import execute_query
-from app.blockly_editor.blockly_editor import BlocklyEditor
 from app.blockly_editor.load_service import LoadService
 
 @bp.route("/")
 def index():
-   return redirect(url_for("blockly.editor"))
+   return redirect(url_for("projects.register"))
 
 @bp.route("/about")
 def about():
