@@ -1,4 +1,24 @@
-// Blockly blokken definities
+// Custom blocks for browser actions
+
+
+// Custom block to open a new browser session
+Blockly.Blocks['open_browser'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField("Open Browser");
+
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(210);
+    }
+};
+
+// Generates Python code to open a new browser session
+Blockly.Python.forBlock['open_browser'] = function(block, generator) {
+return 'print("Browser geopend")\n';
+};
+
+// Custom blocks to close the browser
 Blockly.Blocks['close_browser'] = {
   init: function () {
     this.appendDummyInput()
@@ -9,6 +29,7 @@ Blockly.Blocks['close_browser'] = {
   }
 };
 
+// Custom block to maximize the browser window
 Blockly.Blocks['maximize_window'] = {
   init: function () {
     this.appendDummyInput()
@@ -19,6 +40,7 @@ Blockly.Blocks['maximize_window'] = {
   }
 };
 
+// Custom blocks to wait for a certain number of seconds
 Blockly.Blocks['wait_seconds'] = {
   init: function () {
     this.appendDummyInput()
@@ -31,6 +53,7 @@ Blockly.Blocks['wait_seconds'] = {
   }
 };
 
+// Custom block to assert the browser title
 Blockly.Blocks['assert_title'] = {
     init: function () {
         this.appendDummyInput()
