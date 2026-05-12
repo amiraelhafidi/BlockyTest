@@ -1,11 +1,12 @@
 // Custom blocks for browser actions
 
 
-// Custom block to open a new browser session
+// Custom block to open a browser and navigate to a URL
 Blockly.Blocks['open_browser'] = {
     init: function () {
         this.appendDummyInput()
-            .appendField("Open Browser");
+            .appendField("Open Browser")
+            .appendField(new Blockly.FieldTextInput("https://example.com"), "URL");
 
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
@@ -13,9 +14,12 @@ Blockly.Blocks['open_browser'] = {
     }
 };
 
-// Generates Python code to open a new browser session
+// Generates Python code to open a browser with the given URL
 Blockly.Python.forBlock['open_browser'] = function(block, generator) {
-return 'print("Browser geopend")\n';
+    const url = block.getFieldValue('URL');
+
+    return '# Open browser en ga naar URL\n' +
+           `driver.get("${url}")\n`;
 };
 
 // Custom blocks to close the browser
