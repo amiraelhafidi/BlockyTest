@@ -15,9 +15,7 @@ Blockly.Blocks['open_browser'] = {
 
 // Generates Python code to open a new browser session
 Blockly.Python.forBlock['open_browser'] = function(block, generator) {
-    return 'from selenium import webdriver\n' +
-           '# Open een nieuwe browser sessie\n' +
-           'driver = webdriver.Chrome()\n';
+return 'print("Browser geopend")\n';
 };
 
 // Custom blocks to close the browser
