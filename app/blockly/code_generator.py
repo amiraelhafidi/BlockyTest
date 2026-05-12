@@ -17,7 +17,7 @@ class CodeGenerator:
     # Vertaling van Blockly bloktypen naar Robot Framework keywords
     # Format: "blockly_type": ("Robot keyword", [veldnamen])
     BLOCK_MAP = {
-        "open_browser": ("Open Browser", ["URL", "BROWSER"]),
+        "open_browser": ("Open Browser", ["URL"]),
         "maximize_window": ("Maximize Browser Window", []),
         "wait_seconds": ("Sleep", ["SECONDS"]),
         "assert_title": ("Title Should Be", ["TITLE"]),

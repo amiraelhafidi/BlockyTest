@@ -14,14 +14,6 @@ Blockly.Blocks['open_browser'] = {
     }
 };
 
-// Generates Python code to open a browser with the given URL
-Blockly.Python.forBlock['open_browser'] = function(block, generator) {
-    const url = block.getFieldValue('URL');
-
-    return '# Open browser en ga naar URL\n' +
-           `driver.get("${url}")\n`;
-};
-
 // Custom blocks to close the browser
 Blockly.Blocks['close_browser'] = {
   init: function () {
@@ -91,4 +83,10 @@ Blockly.Python.forBlock['wait_seconds'] = function(block, generator) {
 Blockly.Python.forBlock['assert_title'] = function(block, generator) {
   const title = block.getFieldValue('TITLE');
   return `assert driver.title == "${title}"\n`;
+};
+
+// Genereert Python code om de browser te openen met de gegeven URL
+Blockly.Python.forBlock['open_browser'] = function(block, generator) {
+    const url = block.getFieldValue('URL');
+    return `\`driver.get("${url}")\n`;
 };
