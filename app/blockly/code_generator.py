@@ -17,10 +17,10 @@ class CodeGenerator:
     # Vertaling van Blockly bloktypen naar Robot Framework keywords
     # Format: "blockly_type": ("Robot keyword", [veldnamen])
     BLOCK_MAP = {
-        "open_browser": ("Open Browser", ["URL", "BROWSER"]),
+        "open_browser": ("Open Browser", ["URL"]),
         "maximize_window": ("Maximize Browser Window", []),
         "wait_seconds": ("Sleep", ["SECONDS"]),
-        "assert_title": ("Title Should Be", ["TITLE"]),
+        "assert_title": ("Title Should Contain", ["TITLE"]),
         "close_browser": ("Close Browser", []),
     }
 
@@ -58,6 +58,12 @@ class CodeGenerator:
             "*** Test Cases ***\n"
             "Generated Test\n"
             f"{keywords_code}\n"
+            "\n"
+            "*** Keywords ***\n"
+            "Title Should Contain\n"
+            "    [Arguments]    ${expected_text}\n"
+            "    ${title}=    Get Title\n"
+            "    Should Contain    ${title}    ${expected_text}\n"
         )
 
         return keywords_code, robot_file
