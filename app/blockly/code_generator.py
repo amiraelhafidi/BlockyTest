@@ -20,7 +20,7 @@ class CodeGenerator:
         "open_browser": ("Open Browser", ["URL"]),
         "maximize_window": ("Maximize Browser Window", []),
         "wait_seconds": ("Sleep", ["SECONDS"]),
-        "assert_title": ("Title Should Be", ["TITLE"]),
+        "assert_title": ("Title Should Contain", ["TITLE"]),
         "close_browser": ("Close Browser", []),
     }
 
@@ -57,7 +57,19 @@ class CodeGenerator:
             "\n"
             "*** Test Cases ***\n"
             "Generated Test\n"
+            "    [Setup]    Accept Cookies If Present\n"
             f"{keywords_code}\n"
+            "\n"
+            "*** Keywords ***\n"
+            "Accept Cookies If Present\n"
+            "    ${status}=    Run Keyword And Return Status    Wait Until Element Is Visible    xpath://button[contains(text(), 'Alle cookies afwijzen')]    5s\n"
+            "    Run Keyword If    ${status}    Click Button    xpath://button[contains(text(), 'Alle cookies afwijzen')]\n"
+            "    Sleep    1s\n"
+            "\n"
+            "Title Should Contain\n"
+            "    [Arguments]    ${expected_text}\n"
+            "    ${title}=    Get Title\n"
+            "    Should Contain    ${title}    ${expected_text}\n"
         )
 
         return keywords_code, robot_file

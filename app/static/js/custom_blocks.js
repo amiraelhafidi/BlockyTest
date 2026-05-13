@@ -53,7 +53,7 @@ Blockly.Blocks['wait_seconds'] = {
 Blockly.Blocks['assert_title'] = {
     init: function () {
         this.appendDummyInput()
-            .appendField("Assert title is")
+            .appendField("Title should contain")
             .appendField(new Blockly.FieldTextInput("HvA"), "TITLE");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
@@ -82,11 +82,12 @@ Blockly.Python.forBlock['wait_seconds'] = function(block, generator) {
 // Genereert Python code om de browser titel te controleren
 Blockly.Python.forBlock['assert_title'] = function(block, generator) {
   const title = block.getFieldValue('TITLE');
-  return `assert driver.title == "${title}"\n`;
+  return `assert "${title}" in driver.title\n`;
 };
 
 // Genereert Python code om de browser te openen met de gegeven URL
 Blockly.Python.forBlock['open_browser'] = function(block, generator) {
     const url = block.getFieldValue('URL');
-    return `\`driver.get("${url}")\n`;
+    return `driver.get("${url}")\n`;
 };
+
