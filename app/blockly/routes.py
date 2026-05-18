@@ -1,5 +1,3 @@
-"""Routes en helpfuncties voor Blockly vertaling, runs en geschiedenis."""
-
 import os
 import subprocess
 import tempfile
@@ -12,154 +10,62 @@ from app.blockly.test_result import TestResult
 from app.db import execute_query
 
 
-def execute_robot_test(robot_file: str, timeout: int = 60) -> dict:
-    """
-    Voer Robot Framework test uit met gegenereerde .robot file.
-
-    Schrijft de code naar een temp folder en voert robot command uit.
-    Returned alle output en telt geslaagde/gefaalde tests.
-
-    Args:
-        robot_file (str): Inhoud van het .robot bestand
-        timeout (int): Maximale wachttijd in seconden
-
-    Returns:
-        dict: Test resultaat met return_code, tellers en output
-
-    Raises:
-        RuntimeError: Als Robot niet geïnstalleerd is of timeout
-    """
+def execute_robot_test(robot_file, timeout=60):
     with tempfile.TemporaryDirectory() as tmpdir:
         robot_path = os.path.join(tmpdir, "generated_test.robot")
 
-        # Schrijf .robot file naar temp folder
         with open(robot_path, "w") as file:
             file.write(robot_file)
 
-        try:
-            # Voer Robot Framework uit
-            result = subprocess.run(
-                ["python", "-m", "robot", "--outputdir", tmpdir, robot_path],
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-            )
-        except FileNotFoundError:
-            raise RuntimeError("Robot Framework niet geïnstalleerd (pip install robotframework)")
-        except subprocess.TimeoutExpired:
-            raise RuntimeError(f"Test time-out na {timeout} seconden")
+        result = subprocess.run(
+            ["python", "-m", "robot", "--outputdir", tmpdir, robot_path],
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
 
-        # Parse output naar TestResult object
-        test_result = TestResult.from_process(result)
-        return test_result.to_dict(result.stderr)
+        return TestResult.from_process(result).to_dict(result.stderr)
 
 
-def get_project_name(project_id: str | None) -> str:
-    """
-    Haal projectnaam op uit database.
-
-    Args:
-        project_id (str | None): ID van het project
-
-    Returns:
-        str: Projectnaam of lege string als niet gevonden
-    """
+def get_project_name(project_id):
     if not project_id:
         return ""
-
-    # Query de testflow tabel naar projectnaam
     result = execute_query("SELECT name FROM testflow WHERE testflow_id = ?", [project_id])
     if result and isinstance(result, list):
         return result[0].get("name", "")
-
     return ""
 
 
-def get_robot_file(xml: str) -> str:
-    """
-    Zet Blockly XML om naar compleet .robot bestand.
-
-    Args:
-        xml (str): Blockly XML van workspace
-
-    Returns:
-        str: Volledige Robot Framework bestand inhoud
-    """
-    # Haal robot_file uit xml_to_robot (eerste waarde is preview)
-    _, robot_file = xml_to_robot(xml)
-    return robot_file
-
-
-def get_testruns() -> list:
-    """
-    Haal alle testruns op uit database.
-
-    Returns:
-        list: Testruns met testrun_id, status en started_at
-    """
-    query = """SELECT
-                    tr.testrun_id,
-                    tr.status,
-                    tr.started_at
-                FROM testrun tr
-                ORDER BY tr.started_at DESC
-                LIMIT 100"""
-    return execute_query(query)
+def get_testruns():
+    return execute_query("""
+        SELECT testrun_id, status, started_at
+        FROM testrun
+        ORDER BY started_at DESC
+        LIMIT 100
+    """)
 
 
 @bp.route("/")
 def editor():
-    """
-    Laad en toon de Blockly editor pagina.
-
-    Returns:
-        Response: HTML pagina met editor
-    """
-    # Haal project_id uit URL parameters
     project_id = request.args.get("project_id")
-    # Render editor met projectnaam in titel
     return render_template("blockly.html", project_name=get_project_name(project_id))
 
 
 @bp.route("/generate", methods=["POST"])
 def generate():
-    """
-    Genereer Robot code uit Blockly XML.
-
-    Returned preview keywords en volledig .robot bestand.
-
-    Returns:
-        Response: JSON met code en robot_bestand of fout
-    """
-    data = request.get_json()
-    xml = data.get("workspace_xml", "")
-
-    # Return lege waarden als geen XML
+    xml = request.get_json().get("workspace_xml", "")
     if not xml.strip():
         return jsonify({"code": "", "robot_bestand": ""})
-
-    # Vertaal XML naar Robot code
     keywords_code, robot_file = xml_to_robot(xml)
     return jsonify({"code": keywords_code, "robot_bestand": robot_file})
 
 
 @bp.route("/download", methods=["POST"])
 def download():
-    """
-    Download gegenereerde .robot file.
-
-    Returns:
-        Response: Download bestand of JSON foutmelding
-    """
     data = request.get_json()
     xml = data.get("workspace_xml", "")
-    # Maak bestandsnaam: spaties weg, lowercase
     project_name = data.get("project_name", "test").replace(" ", "_").lower()
-
-    # Genereer .robot file
-    robot_file = get_robot_file(xml)
-
-    # Return file voor download
+    _, robot_file = xml_to_robot(xml)
     return Response(
         robot_file,
         mimetype="text/plain",
@@ -169,85 +75,31 @@ def download():
 
 @bp.route("/run", methods=["POST"])
 def run():
-    """
-    Voer gegenereerde test uit en sla resultaat op.
-
-    Stap 1: Valideer XML
-    Stap 2: Maak testrun record in DB
-    Stap 3: Voer Robot test uit
-    Stap 4: Sla resultaten op in DB
-    Stap 5: Return resultaten naar frontend
-
-    Returns:
-        Response: JSON met testresultaat of fout
-    """
-    data = request.get_json()
-    xml = data.get("workspace_xml", "")
-
-    # Genereer .robot file
-    robot_file = get_robot_file(xml)
-
-    # Maak testrun record (status = "running")
+    xml = request.get_json().get("workspace_xml", "")
+    _, robot_file = xml_to_robot(xml)
     testrun_id = create_testrun()
-
-    # Voer de test uit
     results = execute_robot_test(robot_file)
-    passed = results.get("geslaagd", 0)
-    failed = results.get("gefaald", 0)
-    # Bepaal status op basis van return_code
     status = "passed" if results["return_code"] == 0 else "failed"
-    # Sla resultaten op in DB
-    update_testrun_result(testrun_id, status, passed, failed)
-    # Return resultaten naar frontend
+    update_testrun_result(testrun_id, status, results.get("geslaagd", 0), results.get("gefaald", 0))
     return jsonify(results)
 
 
 @bp.route("/geschiedenis")
 def geschiedenis():
-    """
-    Toon pagina met testrun geschiedenis.
-
-    Haalt alle testruns op uit DB en toont ze in tabel.
-
-    Returns:
-        Response: HTML pagina met testruns
-    """
-    testruns = get_testruns()
-    return render_template("testrun_history.html", testruns=testruns)
+    return render_template("testrun_history.html", testruns=get_testruns())
 
 
 @bp.route("/save", methods=["POST"])
 def save():
-    """
-    Sla workspace XML op in database.
-
-    Returns:
-        Response: JSON met succes of fout
-    """
     data = request.get_json()
-    workspace_xml = data.get("workspace_xml", "")
-    project_name = data.get("project_name", "Untitled Project")
-
-    # Insert of update workspace
-    query = """INSERT INTO blockly_project (project_name, workspace_xml)
-               VALUES (?, ?)
-               ON DUPLICATE KEY UPDATE workspace_xml = VALUES(workspace_xml)"""
-    execute_query(query, (project_name, workspace_xml))
-
+    execute_query(
+        "INSERT INTO blockly_project (project_name, workspace_xml) VALUES (?, ?) ON DUPLICATE KEY UPDATE workspace_xml = VALUES(workspace_xml)",
+        (data.get("project_name", "Untitled Project"), data.get("workspace_xml", ""))
+    )
     return jsonify({"success": True, "message": "Workspace opgeslagen"})
 
 
 @bp.route("/load", methods=["GET"])
 def load():
-    """
-    Laad laatst opgeslagen workspace uit database.
-
-    Returns:
-        Response: JSON met workspace XML of fout
-    """
-    # Haal meest recente workspace op
-    query = "SELECT workspace_xml FROM blockly_project ORDER BY id DESC LIMIT 1"
-    result = execute_query(query)
-    # Extraheer XML of lege string
-    workspace_xml = result[0].get("workspace_xml", "") if result else ""
-    return jsonify({"workspace_xml": workspace_xml})
+    result = execute_query("SELECT workspace_xml FROM blockly_project ORDER BY id DESC LIMIT 1")
+    return jsonify({"workspace_xml": result[0].get("workspace_xml", "") if result else ""})
