@@ -8,7 +8,6 @@ bp = Blueprint("blockly", __name__)
 
 
 def create_testrun(project_id=None):
-    """Create a new testrun. If project_id is not provided, use the first project of the current user."""
     if not project_id:
         # Get the first project of the current user
         user_id = session.get("user_id")
@@ -20,7 +19,6 @@ def create_testrun(project_id=None):
             if result and isinstance(result, list) and len(result) > 0:
                 project_id = result[0].get("testflow_id")
         
-        # Fallback: if still no project_id, get any testflow
         if not project_id:
             result = execute_query("SELECT testflow_id FROM testflow LIMIT 1")
             if result and isinstance(result, list) and len(result) > 0:
@@ -37,7 +35,7 @@ def create_testrun(project_id=None):
 
 
 def update_testrun_result(testrun_id, status, passed=0, failed=0, output_xml=""):
-    """Update testrun results and create a test report."""
+
     finished_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     execute_query(
         "UPDATE testrun SET status = ?, finished_at = ? WHERE testrun_id = ?",
