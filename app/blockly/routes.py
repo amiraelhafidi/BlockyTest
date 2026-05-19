@@ -15,34 +15,49 @@ def execute_robot_test(robot_file, timeout=60):
     with tempfile.TemporaryDirectory() as tmpdir:
         robot_path = os.path.join(tmpdir, "generated_test.robot")
 
-        with open(robot_path, "w") as file:
-            file.write(robot_file)
+        with open(robot_path, "w") as f:
+            f.write(robot_file)
 
         result = subprocess.run(
             ["python", "-m", "robot", "--outputdir", tmpdir, robot_path],
-            capture_output=True,
-            text=True,
-            timeout=timeout,
+            capture_output=True, text=True, timeout=timeout,
         )
 
         xml_path = os.path.join(tmpdir, "output.xml")
-        output_xml = ""
-        if os.path.exists(xml_path):
-            with open(xml_path, "r") as f:
-                output_xml = f.read()
+        output_xml = open(xml_path).read() if os.path.exists(xml_path) else ""
 
         result_dict = TestResult.from_process(result, output_xml).to_dict(result.stderr)
         result_dict["output_xml"] = output_xml
         return result_dict
 
 
+def parse_steps(output_xml):
+    steps = []
+    try:
+        root = ET.fromstring(output_xml)
+        for test in root.iter("test"):
+            for kw in test:
+                if kw.tag != "kw":
+                    continue
+                status_el = kw.find("status")
+                msg_el = kw.find("msg")
+                steps.append({
+                    "name": kw.get("name", ""),
+                    "args": [a.text for a in kw.findall("arg") if a.text],
+                    "status": status_el.get("status", "") if status_el is not None else "",
+                    "elapsed": round(float(status_el.get("elapsed", 0)), 3) if status_el is not None else 0,
+                    "message": msg_el.text if msg_el is not None else "",
+                })
+    except Exception:
+        pass
+    return steps
+
+
 def get_project_name(project_id):
     if not project_id:
         return ""
     result = execute_query("SELECT name FROM testflow WHERE testflow_id = ?", [project_id])
-    if result and isinstance(result, list):
-        return result[0].get("name", "")
-    return ""
+    return result[0].get("name", "") if result else ""
 
 
 def get_testruns(project_id):
@@ -74,9 +89,8 @@ def generate():
 @bp.route("/download", methods=["POST"])
 def download():
     data = request.get_json()
-    xml = data.get("workspace_xml", "")
     project_name = data.get("project_name", "test").replace(" ", "_").lower()
-    _, robot_file = xml_to_robot(xml)
+    _, robot_file = xml_to_robot(data.get("workspace_xml", ""))
     return Response(
         robot_file,
         mimetype="text/plain",
@@ -87,10 +101,8 @@ def download():
 @bp.route("/run", methods=["POST"])
 def run():
     data = request.get_json()
-    xml = data.get("workspace_xml", "")
-    project_id = data.get("project_id")
-    _, robot_file = xml_to_robot(xml)
-    testrun_id = create_testrun(project_id)
+    _, robot_file = xml_to_robot(data.get("workspace_xml", ""))
+    testrun_id = create_testrun(data.get("project_id"))
     results = execute_robot_test(robot_file)
     status = "passed" if results["return_code"] == 0 else "failed"
     update_testrun_result(testrun_id, status, results.get("geslaagd", 0), results.get("gefaald", 0), results.get("output_xml", ""))
@@ -100,9 +112,12 @@ def run():
 @bp.route("/geschiedenis")
 def geschiedenis():
     project_id = request.args.get("project_id")
-    testruns = get_testruns(project_id) if project_id else []
-    project_name = get_project_name(project_id)
-    return render_template("testrun_history.html", testruns=testruns, project_name=project_name, project_id=project_id)
+    return render_template(
+        "testrun_history.html",
+        testruns=get_testruns(project_id) if project_id else [],
+        project_name=get_project_name(project_id),
+        project_id=project_id,
+    )
 
 
 @bp.route("/testrun/<int:testrun_id>")
@@ -120,32 +135,7 @@ def testrun_detail(testrun_id):
         return "Testrun niet gevonden", 404
 
     run = row[0]
-    steps = []
-
-    if run.get("output_xml"):
-        try:
-            root = ET.fromstring(run["output_xml"])
-            for test in root.iter("test"):
-                for kw in test:
-                    if kw.tag == "kw":
-                        name = kw.get("name", "")
-                        args = [a.text for a in kw.findall("arg") if a.text]
-                        status_el = kw.find("status")
-                        status = status_el.get("status", "") if status_el is not None else ""
-                        elapsed = float(status_el.get("elapsed", 0)) if status_el is not None else 0
-                        msg_el = kw.find("msg")
-                        message = msg_el.text if msg_el is not None else ""
-                        steps.append({
-                            "name": name,
-                            "args": args,
-                            "status": status,
-                            "elapsed": round(elapsed, 3),
-                            "message": message,
-                        })
-        except Exception:
-            pass
-
-    return render_template("testrun_detail.html", run=run, steps=steps)
+    return render_template("testrun_detail.html", run=run, steps=parse_steps(run.get("output_xml", "")))
 
 
 @bp.route("/save", methods=["POST"])

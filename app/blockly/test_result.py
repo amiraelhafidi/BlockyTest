@@ -21,11 +21,9 @@ class TestResult:
         passed = 0
         failed = 0
 
-        # Parse XML for accurate counts
         if output_xml:
             try:
                 root = ET.fromstring(output_xml)
-                # Robot schrijft de totaaltelling in het <statistics> blok
                 for suite_stat in root.iter("stat"):
                     if suite_stat.get("name") == "All Tests":
                         passed = int(suite_stat.get("pass", 0))
