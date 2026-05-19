@@ -23,10 +23,10 @@
 
 <div class="history-container">
     <div class="page-header">
-        <h1>Test Geschiedenis</h1>
+        <h1>{{ project_name }}</h1>
     </div>
 
-    <a href="{{ url_for('blockly.editor') }}" class="back-btn">← Terug naar Editor</a>
+    <a href="{{ url_for('blockly.editor', project_id=project_id) }}" class="back-btn">← Terug naar Editor</a>
 
     {% if error %}
     <div class="error">Fout: {{ error }}</div>
@@ -40,6 +40,7 @@
                         <th>ID</th>
                         <th>Status</th>
                         <th>Datum</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,6 +59,7 @@
                         <td>#{{ run.testrun_id }}</td>
                         <td><span style="padding: 4px 8px; border-radius: 4px; font-weight: 500; {{ status_style }}">{{ status_label }}</span></td>
                         <td>{% if run.started_at %}{{ run.started_at[:10] }} {{ run.started_at[11:19] }}{% else %}—{% endif %}</td>
+                        <td><a href="{{ url_for('blockly.testrun_detail', testrun_id=run.testrun_id) }}" class="back-btn" style="margin: 0;">Bekijk</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
