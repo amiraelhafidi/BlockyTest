@@ -175,4 +175,8 @@ WebDriverWait(driver, ${timeout}).until(
 `;
 };
 
+Blockly.Python.forBlock['assert_title'] = function(block, generator) {
+    const title = block.getFieldValue('TITLE');
+    return `assert "${title}" == driver.title\n`;
+};
 
