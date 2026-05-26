@@ -20,7 +20,7 @@ run_unit_tests:
   before_script:
     - pip install -r requirements.txt
   script:
-    - pytest
+    - pytest tests/
 
 deploy_to_vps:
   stage: deploy
