@@ -7,6 +7,9 @@ BLOCK_MAP = {
     "open_browser": ("Open Browser", ["URL"]),
     "maximize_window": ("Maximize Browser Window", []),
     "wait_seconds": ("Sleep", ["SECONDS"]),
+    "input_text": ("Input Text", ["FIELD", "TEXT"]),
+    "click_element": ("Click Element", ["ELEMENT"]),
+    "wait_for_element": ("Wait Until Element Is Visible", ["ELEMENT", "TIMEOUT"]),
     "assert_title": ("Title Should Contain", ["TITLE"]),
     "close_browser": ("Close Browser", []),
 }
