@@ -55,6 +55,7 @@ deploy_to_vps:
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
     - chmod 600 ~/.ssh/id_ed25519
     - ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+    - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "ssh-keyscan gitlab.fdmci.hva.nl >> ~/.ssh/known_hosts"
   script:
     # Log in op de server, haal nieuwe code op en herstart de app
     - ssh $SERVER_USER@$SERVER_HOST "cd ~/leefooguuxoo98 && git remote set-url origin git@gitlab.fdmci.hva.nl:propedeuse-hbo-ict/onderwijs/student-projecten/2025-2026/out-bim/leefooguuxoo98.git && git pull && docker compose up --build -d"
