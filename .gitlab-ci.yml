@@ -8,35 +8,19 @@ variables:
   DEPLOY_MKDOCS: "true"
 
 stages:
-  - build
   - test
+  - build
   - deploy
 
 run_unit_tests:
-  image: python:3.12-slim
   stage: test
+  image: python:3.12-slim
   tags:
     - hva
   before_script:
     - pip install -r requirements.txt
   script:
     - pytest tests/
-
-deploy_to_vps:
-  stage: deploy
-  image: alpine:latest
-  tags:
-    - hva
-  before_script:
-    - apk add --no-cache openssh-client
-    - mkdir -p ~/.ssh
-    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-    - chmod 600 ~/.ssh/id_ed25519
-    - ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
-  script:
-    - ssh $SERVER_USER@$SERVER_HOST "cd ~/nginx-proxy-manager/leefooguuxoo98 && git pull && docker compose up --build -d"
-  only:
-    - main
 
 # NOTE: This job has to be called "pages" to be able to deploy to Gitlab Pages!
 pages:
@@ -58,3 +42,19 @@ pages:
     - public
   rules:
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $DEPLOY_MKDOCS == "true"
+
+deploy_to_vps:
+  stage: deploy
+  image: alpine:latest
+  tags:
+    - hva
+  before_script:
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+    - chmod 600 ~/.ssh/id_ed25519
+    - ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+  script:
+    - ssh $SERVER_USER@$SERVER_HOST "cd ~/nginx-proxy-manager/leefooguuxoo98 && git pull && docker compose up --build -d"
+  only:
+    - main
