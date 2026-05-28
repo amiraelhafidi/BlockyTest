@@ -20,7 +20,7 @@
         <button type="button" class="header-btn" onclick="loadWorkspace()">Laden</button>
         <button type="button" class="header-btn" id="runBtn" onclick="runTest()">Run</button>
         <button type="button" class="header-btn" id="clearWorkspaceBtn">Clear</button>
-        <a href="{{ url_for('blockly.geschiedenis') }}" class="header-btn" style="text-decoration: none;">Geschiedenis</a>
+        <a href="{{ url_for('blockly.geschiedenis', project_id=project_id) }}" class="header-btn" style="text-decoration: none;">Geschiedenis</a>
     </div>
 </header>
 
