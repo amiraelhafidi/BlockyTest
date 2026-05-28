@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlockyTest</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/welcome.css') }}">
+</head>
+<body>
+
+<header class="nav_bar">
+    <div class="nav_left">
+        <img src="{{ url_for('static', filename='img/image.png') }}" alt="BlockyTest logo" class="header_logo">
+        <h1 class="logo_text">BlockyTest</h1>
+    </div>
+
+    <div class="nav_right">
+        <a href="#hoe-het-werkt">Hoe het werkt</a>
+        <a href="#voorbeelden">Voorbeelden</a>
+        <a class="nav_register" href="{{ url_for('projects.register') }}">Registreren</a>
+        <a href="{{ url_for('projects.login') }}">Inloggen</a>
+    </div>
+</header>
+
+<main>
+    <section class="welcome_intro">
+        <div class="intro_text">
+            <p class="small_title">Testen met blokken</p>
+            <h2>Testautomatisering zonder code, ook voor beginners.</h2>
+            <p> BlockyTest is gemaakt voor studenten, testers en teams die tests willen bouwen zonder veel programmeerervaring.
+                Je stelt testscenario's samen met blokken, voert ze uit en bekijkt direct het resultaat.
+            </p>
+            <div class="intro_buttons">
+                <a class="primary_button" href="{{ url_for('projects.register') }}">Maak een account</a>
+                <a class="secondary_button" href="#hoe-het-werkt">Bekijk hoe het werkt</a>
+            </div>
+        </div>
+
+        <div class="preview_box">
+            <div class="preview_block blue_block">Open Browser <span>https://hva.nl</span></div>
+            <div class="preview_block">Maximize Window</div>
+            <div class="preview_block">Wait <span>2 seconds</span></div>
+            <div class="preview_block">Close Browser</div>
+            <div class="preview_result">Teststatus: geslaagd</div>
+        </div>
+    </section>
+
+    <section class="info_section" id="hoe-het-werkt">
+        <h2>Hoe werkt BlockyTest?</h2>
+
+        <div class="steps">
+            <div>
+                <span class="step_icon">Bouw</span>
+                <strong>1. Bouw je test</strong>
+                <span>Kies blokken zoals browser openen, wachten en sluiten.</span>
+            </div>
+            <div>
+                <span class="step_icon">Code</span>
+                <strong>2. Genereer code</strong>
+                <span>BlockyTest zet je blokken om naar testcode.</span>
+            </div>
+            <div>
+                <span class="step_icon">Run</span>
+                <strong>3. Run en bekijk resultaat</strong>
+                <span>Voer de test uit en zie of hij geslaagd of gefaald is.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="tools_section">
+        <p class="small_title">Gebruikte tools</p>
+        <h2>Op de achtergrond gebruiken we 2 krachtige tools</h2>
+        <div class="tool_names">
+            <div class="tool_item">
+                <img src="{{ url_for('static', filename='img/robot-framework-logo.svg') }}" alt="Robot Framework logo">
+                <strong>Robot Framework</strong>
+                <p>Voert de automatische tests uit.</p>
+            </div>
+            <div class="tool_item">
+                <img src="https://developers.google.com/static/blockly/images/logos/logo_vertical.svg" alt="Google Blockly logo">
+                <strong>Google Blockly</strong>
+                <p>Maakt het mogelijk om tests met blokken te bouwen.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="proof_section">
+        <div>
+            <p class="small_title">Samenwerking</p>
+            <h2>Powered by WailSalutem x HvA</h2>
+            <p>
+                BlockyTest is ontwikkeld binnen een onderwijsproject met WailSalutem Foundation en de Hogeschool van Amsterdam.
+                Die samenwerking maakt de tool gericht op leren, testen en toegankelijkheid.
+            </p>
+        </div>
+        <img src="{{ url_for('static', filename='img/Wail-Salutem-foundation-logo.webp') }}" alt="WailSalutem Foundation logo">
+    </section>
+
+    <section class="screenshots_section" id="voorbeelden">
+        <p class="small_title">Voorbeelden</p>
+        <h2>Een gemaakte test in beeld</h2>
+
+        <div class="screenshot_grid">
+            <figure>
+                <img src="{{ url_for('static', filename='img/voorbeeld-test-run.png') }}" alt="Voorbeeld van een testflow">
+                <figcaption>Stel een testflow samen met Blockly-blokken.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="{{ url_for('static', filename='img/voorbeeld-code.png') }}" alt="Voorbeeld van gegenereerde code">
+                <figcaption>Bekijk de gegenereerde testcode naast je blokken.</figcaption>
+            </figure>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">
+    <div class="footer_columns">
+        <div>
+            <h2>WailSalutem Foundation</h2>
+            <p>Samen bouwen aan toegankelijke testautomatisering.</p>
+        </div>
+
+        <div>
+            <p>Tom Lodewijklaan 20</p>
+            <p>1183 WE Amstelveen</p>
+            <p>Tel: 0640690319</p>
+            <p>E-mail: <a href="mailto:info@wailsalutem-foundation.com">info@wailsalutem-foundation.com</a></p>
+            <p>KVK: 84381493</p>
+        </div>
+
+        <div>
+            <a href="https://wailsalutem-foundation.com/privacybeleid/" target="_blank" rel="noreferrer">Privacybeleid</a>
+        </div>
+    </div>
+
+    <div class="footer_bottom">
+        <span>Powered by WailSalutem x HvA</span>
+        <span>&copy; WailSalutem Foundation 2026</span>
+    </div>
+</footer>
+
+</body>
+</html>
