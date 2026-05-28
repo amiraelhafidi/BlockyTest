@@ -49,12 +49,14 @@ deploy_to_vps:
   tags:
     - hva
   before_script:
+    # SSH setup voor verbinding met de VPS
     - apk add --no-cache openssh-client
     - mkdir -p ~/.ssh
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
     - chmod 600 ~/.ssh/id_ed25519
     - ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
   script:
+    # Log in op de server, haal nieuwe code op en herstart de app
     - ssh $SERVER_USER@$SERVER_HOST "cd ~/nginx-proxy-manager/leefooguuxoo98 && git pull && docker compose up --build -d"
   only:
     - main
