@@ -57,6 +57,6 @@ deploy_to_vps:
     - ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
   script:
     # Log in op de server, haal nieuwe code op en herstart de app
-    - ssh $SERVER_USER@$SERVER_HOST "cd ~/nginx-proxy-manager/leefooguuxoo98 && git pull && docker compose up --build -d"
+    - ssh $SERVER_USER@$SERVER_HOST "cd ~/leefooguuxoo98 && git pull && docker compose up --build -d"
   only:
     - main
