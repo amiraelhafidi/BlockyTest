@@ -25,8 +25,15 @@ def execute_robot_test(robot_file, timeout=60):
         xml_path = os.path.join(tmpdir, "output.xml")
         output_xml = open(xml_path).read() if os.path.exists(xml_path) else ""
 
+        report_path = os.path.join(tmpdir, "report.html")
+        log_path = os.path.join(tmpdir, "log.html")
+        report_html = open(report_path, encoding="utf-8").read() if os.path.exists(report_path) else ""
+        log_html = open(log_path, encoding="utf-8").read() if os.path.exists(log_path) else ""
+
         result_dict = TestResult.from_process(result, output_xml).to_dict(result.stderr)
         result_dict["output_xml"] = output_xml
+        result_dict["report_html"] = report_html
+        result_dict["log_html"] = log_html
         return result_dict
 
 
@@ -86,7 +93,9 @@ def run():
         testrun_id, status,
         results.get("geslaagd", 0),
         results.get("gefaald", 0),
-        results.get("output_xml", "")
+        results.get("output_xml", ""),
+        results.get("report_html", ""),
+        results.get("log_html", "")
     )
     return jsonify(results)
 
