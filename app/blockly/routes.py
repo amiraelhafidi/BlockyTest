@@ -1,9 +1,8 @@
 import os
 import subprocess
 import tempfile
-import xml.etree.ElementTree as ET
 
-from flask import Response, jsonify, render_template, request, session
+from flask import Response, jsonify, render_template, request
 
 from app.blockly import bp, create_testrun, update_testrun_result
 from app.blockly.code_generator import xml_to_robot
@@ -30,27 +29,6 @@ def execute_robot_test(robot_file, timeout=60):
         result_dict["output_xml"] = output_xml
         return result_dict
 
-
-def parse_steps(output_xml):
-    steps = []
-    try:
-        root = ET.fromstring(output_xml)
-        for test in root.iter("test"):
-            for kw in test:
-                if kw.tag != "kw":
-                    continue
-                status_el = kw.find("status")
-                msg_el = kw.find("msg")
-                steps.append({
-                    "name": kw.get("name", ""),
-                    "args": [a.text for a in kw.findall("arg") if a.text],
-                    "status": status_el.get("status", "") if status_el is not None else "",
-                    "elapsed": round(float(status_el.get("elapsed", 0)), 3) if status_el is not None else 0,
-                    "message": msg_el.text if msg_el is not None else "",
-                })
-    except Exception:
-        pass
-    return steps
 
 
 def get_project_name(project_id):
@@ -124,7 +102,7 @@ def geschiedenis():
 def testrun_detail(testrun_id):
     row = execute_query("""
         SELECT tr.testrun_id, tr.testflow_id, tr.status, tr.started_at, tr.finished_at,
-               tf.name AS project_name, rp.passed_count, rp.failed_count, rp.output_xml
+               tf.name AS project_name, rp.passed_count, rp.failed_count
         FROM testrun tr
         JOIN testflow tf ON tr.testflow_id = tf.testflow_id
         LEFT JOIN testreport rp ON rp.testrun_id = tr.testrun_id
@@ -135,7 +113,7 @@ def testrun_detail(testrun_id):
         return "Testrun niet gevonden", 404
 
     run = row[0]
-    return render_template("testrun_detail.html", run=run, steps=parse_steps(run.get("output_xml", "")))
+    return render_template("testrun_detail.html", run=run)
 
 
 @bp.route("/save", methods=["POST"])
