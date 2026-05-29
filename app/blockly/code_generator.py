@@ -23,7 +23,6 @@ def xml_to_robot(xml_text):
     robot_file = (
         "*** Settings ***\n"
         "Library    SeleniumLibrary\n"
-        "Suite Teardown    Close All Browsers\n"
         "\n"
         "*** Test Cases ***\n"
         "Generated Test\n"
