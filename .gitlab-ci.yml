@@ -74,8 +74,9 @@ deploy_amira:
     - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
     - chmod 600 ~/.ssh/id_ed25519
     - ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+    - ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_HOST "ssh-keyscan gitlab.fdmci.hva.nl >> ~/.ssh/known_hosts"
   script:
     # Log in op de server, haal nieuwe code op en herstart de app
-    - ssh $SERVER_USER@$SERVER_HOST "cd ~/nginx-proxy-manager/leefooguuxoo98 && git pull && docker compose up --build -d"
+    - ssh $SERVER_USER@$SERVER_HOST "mkdir -p ~/.ssh && printf 'Host gitlab.fdmci.hva.nl\n\tIdentityFile ~/.ssh/id_ed25519\n\tStrictHostKeyChecking no\n' > ~/.ssh/config && chmod 600 ~/.ssh/config && cd ~/nginx-proxy-manager/leefooguuxoo98 && git pull && docker compose up --build -d"
   only:
     - main
