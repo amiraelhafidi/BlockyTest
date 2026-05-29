@@ -62,8 +62,7 @@ deploy_to_vps:
   only:
     - main
 
-
-  deploy_amira:
+deploy_amira:
   stage: deploy
   image: alpine:latest
   tags:
