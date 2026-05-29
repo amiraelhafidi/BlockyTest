@@ -74,7 +74,7 @@ def get_testruns(project_id):
 @bp.route("/")
 def editor():
     project_id = request.args.get("project_id")
-    return render_template("blockly.html", project_name=get_project_name(project_id))
+    return render_template("blockly.html", project_name=get_project_name(project_id), project_id=project_id)
 
 
 @bp.route("/generate", methods=["POST"])

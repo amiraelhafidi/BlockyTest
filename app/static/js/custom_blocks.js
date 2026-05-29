@@ -1,7 +1,22 @@
 // Custom blocks for browser actions
 
 
-// Custom block to open a browser and navigate to a URL
+
+// Custom block to click on an element identified by its name attribute
+Blockly.Blocks['click_element'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField("Click Element")
+            .appendField(new Blockly.FieldTextInput("loginButton"), "ELEMENT");
+
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour("#F2994A");
+    }
+};
+
+
+// Custom block to open the browser with a specified URL
 Blockly.Blocks['open_browser'] = {
     init: function () {
         this.appendDummyInput()
@@ -10,7 +25,7 @@ Blockly.Blocks['open_browser'] = {
 
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(210);
+        this.setColour("#2D9CDB");
     }
 };
 
@@ -21,7 +36,7 @@ Blockly.Blocks['close_browser'] = {
         .appendField("Close Browser");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour("#2D9CDB");
   }
 };
 
@@ -32,7 +47,7 @@ Blockly.Blocks['maximize_window'] = {
         .appendField("Maximize Window");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour("#2D9CDB");
   }
 };
 
@@ -61,6 +76,40 @@ Blockly.Blocks['assert_title'] = {
     }
 };
 
+
+// Custom block to input text into a field identified by its name attribute
+Blockly.Blocks['input_text'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField("Input Text")
+            .appendField(new Blockly.FieldTextInput("username"), "FIELD")
+            .appendField(new Blockly.FieldTextInput("tekst"), "TEXT");
+
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour("#F2994A");
+    }
+};
+
+// Custom block om te wachten op een element
+Blockly.Blocks['wait_for_element'] = {
+    init: function () {
+        this.appendDummyInput()
+            .appendField("Wait For Element")
+            .appendField(new Blockly.FieldTextInput("loginButton"), "ELEMENT");
+
+        this.appendDummyInput()
+            .appendField("Timeout")
+            .appendField(new Blockly.FieldNumber(10, 1), "TIMEOUT");
+
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour("#F2994A");
+    }
+};
+
+
+
 // Python Code Generators 
 
 // Genereert Python code om de browser te sluiten
@@ -80,14 +129,54 @@ Blockly.Python.forBlock['wait_seconds'] = function(block, generator) {
 };
 
 // Genereert Python code om de browser titel te controleren
-Blockly.Python.forBlock['assert_title'] = function(block, generator) {
-  const title = block.getFieldValue('TITLE');
-  return `assert "${title}" in driver.title\n`;
+Blockly.Python.forBlock['open_browser'] = function(block, generator) {
+
+    const url = block.getFieldValue('URL');
+
+    return `
+from selenium import webdriver
+
+driver = webdriver.Chrome()
+driver.get("${url}")
+`;
 };
 
 // Genereert Python code om de browser te openen met de gegeven URL
 Blockly.Python.forBlock['open_browser'] = function(block, generator) {
     const url = block.getFieldValue('URL');
     return `driver.get("${url}")\n`;
+};
+
+// Generates Python code to input text into a field identified by its name attribute
+Blockly.Python.forBlock['input_text'] = function(block, generator) {
+    const field = block.getFieldValue('FIELD');
+    const text = block.getFieldValue('TEXT');
+
+    return `driver.find_element(By.NAME, "${field}").send_keys("${text}")\n`;
+};
+
+// Generates selenium code to click on an element identified by its name attribute
+Blockly.Python.forBlock['click_element'] = function(block, generator) {
+    const element = block.getFieldValue('ELEMENT');
+
+    return `driver.find_element(By.NAME, "${element}").click()\n`;
+};
+
+// Genereert Selenium code om te wachten op een element
+Blockly.Python.forBlock['wait_for_element'] = function(block, generator) {
+
+    const element = block.getFieldValue('ELEMENT');
+    const timeout = block.getFieldValue('TIMEOUT');
+
+    return `
+WebDriverWait(driver, ${timeout}).until(
+    EC.presence_of_element_located((By.NAME, "${element}"))
+)
+`;
+};
+
+Blockly.Python.forBlock['assert_title'] = function(block, generator) {
+    const title = block.getFieldValue('TITLE');
+    return `assert "${title}" == driver.title\n`;
 };
 

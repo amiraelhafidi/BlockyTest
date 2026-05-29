@@ -7,6 +7,21 @@
 variables:
   DEPLOY_MKDOCS: "true"
 
+stages:
+  - test
+  - build
+  - deploy
+
+run_unit_tests:
+  stage: test
+  image: python:3.12-slim
+  tags:
+    - hva
+  before_script:
+    - pip install -r requirements.txt
+  script:
+    - pytest tests/
+
 # NOTE: This job has to be called "pages" to be able to deploy to Gitlab Pages!
 pages:
   image: python:3.9-slim
@@ -27,3 +42,22 @@ pages:
     - public
   rules:
   - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $DEPLOY_MKDOCS == "true"
+
+deploy_to_vps:
+  stage: deploy
+  image: alpine:latest
+  tags:
+    - hva
+  before_script:
+    # SSH setup voor verbinding met de VPS
+    - apk add --no-cache openssh-client
+    - mkdir -p ~/.ssh
+    - echo "$NOURA_SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+    - chmod 600 ~/.ssh/id_ed25519
+    - ssh-keyscan -H $NOURA_SERVER_HOST >> ~/.ssh/known_hosts
+    - ssh -o StrictHostKeyChecking=no $NOURA_SERVER_USER@$NOURA_SERVER_HOST "ssh-keyscan gitlab.fdmci.hva.nl >> ~/.ssh/known_hosts"
+  script:
+    # Log in op de server, haal nieuwe code op en herstart de app
+    - ssh $NOURA_SERVER_USER@$NOURA_SERVER_HOST "mkdir -p ~/.ssh && printf 'Host gitlab.fdmci.hva.nl\n\tIdentityFile ~/.ssh/id_ed25519\n\tStrictHostKeyChecking no\n' > ~/.ssh/config && chmod 600 ~/.ssh/config && cd ~/leefooguuxoo98 && git remote set-url origin git@gitlab.fdmci.hva.nl:propedeuse-hbo-ict/onderwijs/student-projecten/2025-2026/out-bim/leefooguuxoo98.git && git pull && docker compose up --build -d"
+  only:
+    - main
