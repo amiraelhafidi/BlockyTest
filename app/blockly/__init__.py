@@ -10,18 +10,12 @@ bp = Blueprint("blockly", __name__)
 def create_testrun(project_id=None):
     if not project_id:
         user_id = session.get("user_id")
-        if user_id:
-            result = execute_query(
-                "SELECT testflow_id FROM testflow WHERE user_id = ? ORDER BY testflow_id LIMIT 1",
-                [user_id]
-            )
-            if result:
-                project_id = result[0].get("testflow_id")
-
-        if not project_id:
-            result = execute_query("SELECT testflow_id FROM testflow LIMIT 1")
-            if result:
-                project_id = result[0].get("testflow_id")
+        result = execute_query(
+            "SELECT testflow_id FROM testflow WHERE user_id = ? ORDER BY testflow_id LIMIT 1",
+            [user_id]
+        )
+        if result:
+            project_id = result[0].get("testflow_id")
 
     if not project_id:
         raise ValueError("Geen project gevonden")

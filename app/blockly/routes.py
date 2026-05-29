@@ -30,7 +30,6 @@ def execute_robot_test(robot_file, timeout=60):
         return result_dict
 
 
-
 def get_project_name(project_id):
     if not project_id:
         return ""
@@ -83,7 +82,12 @@ def run():
     testrun_id = create_testrun(data.get("project_id"))
     results = execute_robot_test(robot_file)
     status = "passed" if results["return_code"] == 0 else "failed"
-    update_testrun_result(testrun_id, status, results.get("geslaagd", 0), results.get("gefaald", 0), results.get("output_xml", ""))
+    update_testrun_result(
+        testrun_id, status,
+        results.get("geslaagd", 0),
+        results.get("gefaald", 0),
+        results.get("output_xml", "")
+    )
     return jsonify(results)
 
 

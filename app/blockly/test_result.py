@@ -1,4 +1,3 @@
-import subprocess
 import xml.etree.ElementTree as ET
 
 
@@ -12,10 +11,10 @@ class TestResult:
 
     @classmethod
     def from_process(cls, result, output_xml=""):
-        hidden_keywords = {"Output:", "Log:", "Report:"}
+        robot_file_lines = {"Output:", "Log:", "Report:"}
         output_lines = [
             line for line in result.stdout.split("\n")
-            if not any(keyword in line for keyword in hidden_keywords)
+            if not any(word in line for word in robot_file_lines)
         ]
 
         passed = 0
@@ -24,15 +23,20 @@ class TestResult:
         if output_xml:
             try:
                 root = ET.fromstring(output_xml)
-                for suite_stat in root.iter("stat"):
-                    if suite_stat.get("name") == "All Tests":
-                        passed = int(suite_stat.get("pass", 0))
-                        failed = int(suite_stat.get("fail", 0))
+                for stat in root.iter("stat"):
+                    if stat.get("name") == "All Tests":
+                        passed = int(stat.get("pass", 0))
+                        failed = int(stat.get("fail", 0))
                         break
             except Exception:
                 pass
 
-        return cls(return_code=result.returncode, passed=passed, failed=failed, output_lines=output_lines)
+        return cls(
+            return_code=result.returncode,
+            passed=passed,
+            failed=failed,
+            output_lines=output_lines
+        )
 
     def to_dict(self, error_output=""):
         return {
