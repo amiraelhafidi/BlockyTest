@@ -37,6 +37,9 @@ class RobotTranslator:
         if block_type == "wait_seconds" and args and not args[0].endswith("s"):
             args[0] += "s"
 
+        if block_type == "assert_title":
+            return f"    ${{title}}=    Get Title\n    Should Contain    ${{title}}    {args[0]}"
+
         return "    " + "    ".join([keyword] + args)
 
     def build_lines(self):
