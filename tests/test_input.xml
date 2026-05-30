@@ -8,7 +8,7 @@
             <field name="SECONDS">3</field>
             <next>
               <block type="assert_title">
-                <field name="EXPECTED_TITLE">HvA</field>
+                <field name="TITLE">HvA</field>
                 <next>
                   <block type="close_browser">
                   </block>
