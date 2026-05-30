@@ -5,7 +5,7 @@ from app.blockly_editor.load_service import LoadService
 
 @bp.route("/")
 def index():
-   return redirect(url_for("projects.register"))
+   return render_template("welcome.html")
 
 @bp.route("/about")
 def about():

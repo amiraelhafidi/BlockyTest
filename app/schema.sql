@@ -68,7 +68,8 @@ CREATE TABLE testreport (
     passed_count INT,
     failed_count INT,
     output_xml LONGTEXT,
-    report_path VARCHAR(255),
+    report_html LONGTEXT,
+    log_html LONGTEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (report_id)
 );
