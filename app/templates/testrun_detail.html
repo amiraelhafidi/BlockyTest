@@ -25,24 +25,33 @@
     <a href="{{ url_for('blockly.geschiedenis', project_id=run.testflow_id) }}" class="back-btn">← Terug naar geschiedenis</a>
 
     <div class="page-header">
-        <h1>Testrun #{{ run.testrun_id }}</h1>
-        <p>Project: <strong>{{ run.project_name }}</strong></p>
+        <h1>{{ run.project_name }}</h1>
+        <p>Testrun #{{ run.testrun_id }}</p>
         <p>Gestart: {{ run.started_at[:10] }} {{ run.started_at[11:19] }}</p>
-        {% if run.finished_at %}
-        <p>Klaar: {{ run.finished_at[:10] }} {{ run.finished_at[11:19] }}</p>
-        {% endif %}
         {% if run.status == 'passed' %}
-            <p style="color: #155724; font-weight: 600;">✓ Geslaagd</p>
+            <p style="color: #155724; font-weight: 600;">Geslaagd</p>
         {% elif run.status == 'failed' %}
-            <p style="color: #721c24; font-weight: 600;">✗ Gefaald</p>
+            <p style="color: #721c24; font-weight: 600;">Gefaald</p>
         {% else %}
-            <p style="color: #856404; font-weight: 600;">⚠ Fout</p>
+            <p style="color: #856404; font-weight: 600;">Fout</p>
         {% endif %}
     </div>
 
+    {% if run.has_report or run.has_log %}
+    <div class="report-actions">
+        <h2>Rapporten</h2>
+        {% if run.has_report %}
+        <a href="{{ url_for('blockly.testrun_report', testrun_id=run.testrun_id) }}" target="_blank" class="back-btn">Bekijk rapport</a>
+        {% endif %}
+        {% if run.has_log %}
+        <a href="{{ url_for('blockly.testrun_log', testrun_id=run.testrun_id) }}" target="_blank" class="back-btn">Bekijk log</a>
+        {% endif %}
+    </div>
+    {% else %}
     <div class="empty-state">
         <p>Geen rapportbestanden beschikbaar voor deze testrun.</p>
     </div>
+    {% endif %}
 </div>
 
 </body>
