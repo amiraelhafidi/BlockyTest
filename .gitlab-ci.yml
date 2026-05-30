@@ -20,7 +20,7 @@ run_unit_tests:
   before_script:
     - pip install -r requirements.txt
   script:
-    - pytest tests/
+    - python -m pytest tests/
 
 # NOTE: This job has to be called "pages" to be able to deploy to Gitlab Pages!
 pages:
