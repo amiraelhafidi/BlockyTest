@@ -67,7 +67,6 @@ CREATE TABLE testreport (
     summary TEXT,
     passed_count INT,
     failed_count INT,
-    output_xml LONGTEXT,
     report_html LONGTEXT,
     log_html LONGTEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

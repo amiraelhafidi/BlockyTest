@@ -87,6 +87,19 @@ td {
     border: none;
 }
 
+/* Rapport knoppen sectie */
+.report-actions {
+    margin-top: 30px;
+}
+
+.report-actions h2 {
+    margin: 0 0 12px 0;
+}
+
+.report-actions .back-btn {
+    margin-right: 8px;
+}
+
 /* Status styling */
 .status-passed {
     background: #d4edda;
