@@ -27,15 +27,15 @@ def create_testrun(project_id=None):
     return result.get("insertId")
 
 
-def update_testrun_result(testrun_id, status, passed=0, failed=0, output_xml="", report_html="", log_html=""):
+def update_testrun_result(testrun_id, status, passed=0, failed=0, report_html="", log_html=""):
     finished_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     execute_query(
         "UPDATE testrun SET status = ?, finished_at = ? WHERE testrun_id = ?",
         (status, finished_at, testrun_id)
     )
     execute_query(
-        "INSERT INTO testreport (testrun_id, passed_count, failed_count, output_xml, report_html, log_html, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        (testrun_id, passed, failed, output_xml, report_html, log_html, finished_at)
+        "INSERT INTO testreport (testrun_id, passed_count, failed_count, report_html, log_html, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+        (testrun_id, passed, failed, report_html, log_html, finished_at)
     )
 
 
