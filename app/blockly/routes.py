@@ -115,7 +115,9 @@ def geschiedenis():
 def testrun_detail(testrun_id):
     row = execute_query("""
         SELECT tr.testrun_id, tr.testflow_id, tr.status, tr.started_at, tr.finished_at,
-               tf.name AS project_name, rp.passed_count, rp.failed_count
+               tf.name AS project_name, rp.passed_count, rp.failed_count,
+               rp.report_html IS NOT NULL AND rp.report_html != '' AS has_report,
+               rp.log_html IS NOT NULL AND rp.log_html != '' AS has_log
         FROM testrun tr
         JOIN testflow tf ON tr.testflow_id = tf.testflow_id
         LEFT JOIN testreport rp ON rp.testrun_id = tr.testrun_id
@@ -127,6 +129,26 @@ def testrun_detail(testrun_id):
 
     run = row[0]
     return render_template("testrun_detail.html", run=run)
+
+
+@bp.route("/testrun/<int:testrun_id>/report")
+def testrun_report(testrun_id):
+    row = execute_query(
+        "SELECT report_html FROM testreport WHERE testrun_id = ?", [testrun_id]
+    )
+    if not row or not row[0].get("report_html"):
+        return "Rapport niet beschikbaar", 404
+    return Response(row[0]["report_html"], mimetype="text/html")
+
+
+@bp.route("/testrun/<int:testrun_id>/log")
+def testrun_log(testrun_id):
+    row = execute_query(
+        "SELECT log_html FROM testreport WHERE testrun_id = ?", [testrun_id]
+    )
+    if not row or not row[0].get("log_html"):
+        return "Log niet beschikbaar", 404
+    return Response(row[0]["log_html"], mimetype="text/html")
 
 
 @bp.route("/save", methods=["POST"])
