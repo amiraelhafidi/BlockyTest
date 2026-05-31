@@ -10,8 +10,10 @@
 
 <header class="nav_bar">
     <div class="nav_left">
-        <img src="{{ url_for('static', filename='img/image.png') }}" alt="Logo" class="header_logo">
-        <h1 class="logo_text">BlockyTest</h1>
+        <a href="{{ url_for('main.index') }}" style="display:flex; align-items:center; gap:12px; text-decoration:none;">
+            <img src="{{ url_for('static', filename='img/image.png') }}" alt="Logo" class="header_logo">
+            <h1 class="logo_text">BlockyTest</h1>
+        </a>
     </div>
     <div class="nav_right">
         <a href="{{ url_for('projects.register') }}">Registreren</a>
