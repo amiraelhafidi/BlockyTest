@@ -17,10 +17,7 @@
     <div class="header-right">
         <a href="{{ url_for('projects.overview') }}" class="header-btn">Mijn projecten</a>
         <button type="button" class="header-btn" onclick="saveWorkspace()">Opslaan</button>
-        <button type="button" class="header-btn" onclick="loadWorkspace()">Laden</button>
-        <button type="button" class="header-btn" id="runBtn" onclick="runTest()">Run</button>
-        <button type="button" class="header-btn" id="clearWorkspaceBtn">Clear</button>
-        <a href="{{ url_for('blockly.geschiedenis', project_id=project_id) }}" class="header-btn" style="text-decoration: none;">Geschiedenis</a>
+        <button type="button" class="header-btn" onclick="loadWorkspace()">Openen</button>
     </div>
 </header>
 
@@ -46,10 +43,14 @@
         <div id="results-section">
             <div class="results-title">
                 <b>Test resultaten</b>
+                <div>
+                    <button type="button" id="runBtn" class="copy-btn" onclick="runTest()">Run</button>
+                    <a href="{{ url_for('blockly.geschiedenis', project_id=project_id) }}" class="copy-btn" style="text-decoration: none; margin-left: 6px;">Geschiedenis</a>
+                </div>
             </div>
             <div id="results-panel">
                 <div id="testResults">
-                <p class="result-placeholder">Klik op "Run" om de test uit te voeren</p>
+                <p class="result-placeholder">Klik op Run om de testresultaten te bekijken</p>
                 </div>
             </div>
         </div>
