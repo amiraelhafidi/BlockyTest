@@ -1,4 +1,4 @@
-from app.blockly.code_generator import xml_to_robot
+from app.blockly.code_generator import RobotCodeGenerator
 
 
 def test_open_browser_blok_vertaalt_correct():
@@ -7,5 +7,5 @@ def test_open_browser_blok_vertaalt_correct():
     Controleert of de vertaling de juiste Robot Framework keyword bevat.
     """
     xml = '<xml><block type="open_browser"><field name="URL">https://www.hva.nl</field></block></xml>'
-    _, robot_file = xml_to_robot(xml)
+    robot_file = RobotCodeGenerator(xml).to_robot()
     assert "Open Browser    https://www.hva.nl" in robot_file

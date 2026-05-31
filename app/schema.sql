@@ -64,9 +64,6 @@ CREATE TABLE testrun (
 CREATE TABLE testreport (
     report_id INT NOT NULL AUTO_INCREMENT,
     testrun_id INT NOT NULL,
-    summary TEXT,
-    passed_count INT,
-    failed_count INT,
     report_html LONGTEXT,
     log_html LONGTEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

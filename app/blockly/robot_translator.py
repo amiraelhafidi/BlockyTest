@@ -1,6 +1,3 @@
-import xml.etree.ElementTree as ET
-
-
 class RobotTranslator:
 
     def __init__(self, root, block_map):
@@ -38,7 +35,7 @@ class RobotTranslator:
             args[0] += "s"
 
         if block_type == "assert_title":
-            return f"    ${{title}}=    Get Title\n    Should Contain    ${{title}}    {args[0]}"
+            return f"    ${{title}}=    {keyword}\n    Should Contain    ${{title}}    {args[0]}"
 
         return "    " + "    ".join([keyword] + args)
 
