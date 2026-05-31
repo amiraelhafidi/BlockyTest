@@ -69,7 +69,7 @@ Blockly.Blocks['assert_title'] = {
     init: function () {
         this.appendDummyInput()
             .appendField("Title should contain")
-            .appendField(new Blockly.FieldTextInput("HvA"), "TITLE");
+            .appendField(new Blockly.FieldTextInput(""), "TITLE");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setColour(160);
