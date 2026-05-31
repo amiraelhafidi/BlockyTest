@@ -12,6 +12,19 @@ from app.db import execute_query
 
 
 def execute_robot_test(robot_file, testrun_id, timeout=60):
+    """Draai een Robot Framework-test en geef het resultaat terug.
+
+    Schrijft de testcode naar een tijdelijk bestand, draait die met Robot
+    Framework, bewaart de screenshots en leest het rapport en de log uit.
+
+    Args:
+        robot_file (str): De inhoud van het .robot-testbestand.
+        testrun_id (int): Id van de testrun, gebruikt om de screenshots op te slaan.
+        timeout (int): Maximale tijd in seconden dat de test mag draaien.
+
+    Returns:
+        dict: Het testresultaat met de uitvoer, het rapport en de log.
+    """
     with tempfile.TemporaryDirectory() as tmpdir:
         # Schrijf de gegenereerde test naar een tijdelijk bestand.
         robot_path = os.path.join(tmpdir, "generated_test.robot")
@@ -53,7 +66,7 @@ def execute_robot_test(robot_file, testrun_id, timeout=60):
         log_html = log_html.replace(filename, screenshot_url)
         report_html = report_html.replace(filename, screenshot_url)
 
-        result_dict = TestResult.from_process(result).to_dict(result.stderr)
+        result_dict = TestResult(result).to_dict()
         result_dict["report_html"] = report_html
         result_dict["log_html"] = log_html
 
