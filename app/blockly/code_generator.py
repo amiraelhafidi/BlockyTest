@@ -19,7 +19,8 @@ class RobotCodeGenerator:
         "input_text": ("Input Text", ["FIELD", "TEXT"]),
         "click_element": ("Click Element", ["ELEMENT"]),
         "wait_for_element": ("Wait Until Element Is Visible", ["ELEMENT", "TIMEOUT"]),
-        "assert_title": ("Get Title", ["TITLE"]),
+        "assert_title": ("Title Should Be", ["TITLE"]),
+        "capture_screenshot": ("Capture Page Screenshot", []),
         "close_browser": ("Close Browser", []),
     }
 

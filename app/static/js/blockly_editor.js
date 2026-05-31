@@ -18,8 +18,11 @@ function updateGeneratedCode() {
 }
 
 function markProjectSaved() {
+    // Controleer of er een project_id in de URL zit (kan leeg zijn bij nieuwe project)
     if (!projectId) return Promise.resolve();
 
+    // Stuur POST request naar backend om wijzigingsdatum bij te werken
+    // Dit zorgt ervoor dat de 'updated_at' timestamp in database wordt aangepast
     return fetch(`/projects/mark-saved/${projectId}`, {
         method: 'POST'
     });
@@ -32,6 +35,7 @@ function saveWorkspace(silent = false) {
         body: JSON.stringify({ workspace_xml: getWorkspaceXml() })
     })
     .then(r => r.json())
+    // NIEUW: Na opslaan in database, werk ook de project wijzigingsdatum bij
     .then(d => markProjectSaved().then(() => d))
     .then(d => { if (!silent) alert(d.message); })
     .catch(e => { if (!silent) alert('Opslaan mislukt: ' + e.message); });

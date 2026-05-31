@@ -1,8 +1,9 @@
 import os
+import shutil
 import subprocess
 import tempfile
 
-from flask import Response, jsonify, render_template, request
+from flask import Response, jsonify, render_template, request, send_from_directory, current_app
 
 from app.blockly import bp, create_testrun, update_testrun_result
 from app.blockly.code_generator import RobotCodeGenerator
@@ -10,42 +11,52 @@ from app.blockly.test_result import TestResult
 from app.db import execute_query
 
 
-def execute_robot_test(robot_file, timeout=60):
-    """Draai een Robot Framework-test en geef het resultaat terug.
-
-    Schrijft de testcode naar een tijdelijk bestand, draait die met Robot
-    Framework en leest het rapport en de log die daarbij ontstaan.
-
-    Args:
-        robot_file (str): De inhoud van het .robot-testbestand.
-        timeout (int): Maximale tijd in seconden dat de test mag draaien.
-
-    Returns:
-        dict: Het testresultaat met de uitvoer, het rapport en de log.
-    """
+def execute_robot_test(robot_file, testrun_id, timeout=60):
     with tempfile.TemporaryDirectory() as tmpdir:
         # Schrijf de gegenereerde test naar een tijdelijk bestand.
         robot_path = os.path.join(tmpdir, "generated_test.robot")
 
-        with open(robot_path, "w") as f:
+        with open(robot_path, "w", encoding="utf-8") as f:
             f.write(robot_file)
 
         # Draai de test met Robot Framework.
         result = subprocess.run(
             ["python", "-m", "robot", "--outputdir", tmpdir, robot_path],
-            capture_output=True, text=True, timeout=timeout,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
         )
 
         # Lees het rapport en de log die Robot heeft gemaakt (als ze bestaan).
         report_path = os.path.join(tmpdir, "report.html")
         log_path = os.path.join(tmpdir, "log.html")
+
         report_html = open(report_path, encoding="utf-8").read() if os.path.exists(report_path) else ""
         log_html = open(log_path, encoding="utf-8").read() if os.path.exists(log_path) else ""
 
-        # Zet alles samen in één resultaat.
-        result_dict = TestResult(result).to_dict()
+        screenshots_dir = os.path.join(
+            "app",
+            "static",
+            "testrun_screenshots",
+            str(testrun_id)
+        )
+        os.makedirs(screenshots_dir, exist_ok=True)
+
+        for filename in os.listdir(tmpdir):
+            if filename.lower().endswith(".png"):
+                shutil.copy(
+                    os.path.join(tmpdir, filename),
+                    os.path.join(screenshots_dir, filename)
+        )
+
+        screenshot_url = f"/blockly/testrun/{testrun_id}/{filename}"
+        log_html = log_html.replace(filename, screenshot_url)
+        report_html = report_html.replace(filename, screenshot_url)
+
+        result_dict = TestResult.from_process(result).to_dict(result.stderr)
         result_dict["report_html"] = report_html
         result_dict["log_html"] = log_html
+
         return result_dict
 
 
@@ -106,7 +117,7 @@ def run():
     robot_file = RobotCodeGenerator(data.get("workspace_xml", "")).to_robot()
     # Maak een testrun aan, draai de test en bepaal of die geslaagd is.
     testrun_id = create_testrun(data.get("project_id"))
-    results = execute_robot_test(robot_file)
+    results = execute_robot_test(robot_file, testrun_id)
     status = "passed" if results["return_code"] == 0 else "failed"
     # Sla het eindresultaat met rapport en log op.
     update_testrun_result(
@@ -178,7 +189,6 @@ def testrun_report(testrun_id):
         return "Rapport niet beschikbaar", 404
     return Response(row[0]["report_html"], mimetype="text/html")
 
-
 @bp.route("/testrun/<int:testrun_id>/log")
 def testrun_log(testrun_id):
     """Geef de opgeslagen HTML-log van een testrun terug.
@@ -194,7 +204,19 @@ def testrun_log(testrun_id):
     )
     if not row or not row[0].get("log_html"):
         return "Log niet beschikbaar", 404
+
     return Response(row[0]["log_html"], mimetype="text/html")
+
+@bp.route("/testrun/<int:testrun_id>/<path:filename>")
+def testrun_file(testrun_id, filename):
+    folder = os.path.join(
+        current_app.root_path,
+        "static",
+        "testrun_screenshots",
+        str(testrun_id)
+    )
+
+    return send_from_directory(folder, filename)
 
 
 @bp.route("/save", methods=["POST"])
