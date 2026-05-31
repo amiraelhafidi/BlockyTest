@@ -5,7 +5,7 @@ import tempfile
 from flask import Response, jsonify, render_template, request
 
 from app.blockly import bp, create_testrun, update_testrun_result
-from app.blockly.code_generator import xml_to_robot
+from app.blockly.code_generator import RobotCodeGenerator
 from app.blockly.test_result import TestResult
 from app.db import execute_query
 
@@ -22,15 +22,12 @@ def execute_robot_test(robot_file, timeout=60):
             capture_output=True, text=True, timeout=timeout,
         )
 
-        xml_path = os.path.join(tmpdir, "output.xml")
-        output_xml = open(xml_path).read() if os.path.exists(xml_path) else ""
-
         report_path = os.path.join(tmpdir, "report.html")
         log_path = os.path.join(tmpdir, "log.html")
         report_html = open(report_path, encoding="utf-8").read() if os.path.exists(report_path) else ""
         log_html = open(log_path, encoding="utf-8").read() if os.path.exists(log_path) else ""
 
-        result_dict = TestResult.from_process(result, output_xml).to_dict(result.stderr)
+        result_dict = TestResult.from_process(result).to_dict(result.stderr)
         result_dict["report_html"] = report_html
         result_dict["log_html"] = log_html
         return result_dict
@@ -60,38 +57,15 @@ def editor():
     return render_template("blockly.html", project_name=get_project_name(project_id), project_id=project_id)
 
 
-@bp.route("/generate", methods=["POST"])
-def generate():
-    xml = request.get_json().get("workspace_xml", "")
-    if not xml.strip():
-        return jsonify({"code": "", "robot_bestand": ""})
-    keywords_code, robot_file = xml_to_robot(xml)
-    return jsonify({"code": keywords_code, "robot_bestand": robot_file})
-
-
-@bp.route("/download", methods=["POST"])
-def download():
-    data = request.get_json()
-    project_name = data.get("project_name", "test").replace(" ", "_").lower()
-    _, robot_file = xml_to_robot(data.get("workspace_xml", ""))
-    return Response(
-        robot_file,
-        mimetype="text/plain",
-        headers={"Content-Disposition": f"attachment; filename={project_name}.robot"},
-    )
-
-
 @bp.route("/run", methods=["POST"])
 def run():
     data = request.get_json()
-    _, robot_file = xml_to_robot(data.get("workspace_xml", ""))
+    robot_file = RobotCodeGenerator(data.get("workspace_xml", "")).to_robot()
     testrun_id = create_testrun(data.get("project_id"))
     results = execute_robot_test(robot_file)
     status = "passed" if results["return_code"] == 0 else "failed"
     update_testrun_result(
         testrun_id, status,
-        results.get("geslaagd", 0),
-        results.get("gefaald", 0),
         results.get("report_html", ""),
         results.get("log_html", "")
     )
@@ -113,7 +87,7 @@ def geschiedenis():
 def testrun_detail(testrun_id):
     row = execute_query("""
         SELECT tr.testrun_id, tr.testflow_id, tr.status, tr.started_at, tr.finished_at,
-               tf.name AS project_name, rp.passed_count, rp.failed_count,
+               tf.name AS project_name,
                rp.report_html IS NOT NULL AND rp.report_html != '' AS has_report,
                rp.log_html IS NOT NULL AND rp.log_html != '' AS has_log
         FROM testrun tr
