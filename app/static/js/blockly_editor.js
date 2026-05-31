@@ -17,6 +17,14 @@ function updateGeneratedCode() {
     pythonCodeField.value = Blockly.Python.workspaceToCode(workspace) || '# Connect blocks to generate code...';
 }
 
+function markProjectSaved() {
+    if (!projectId) return Promise.resolve();
+
+    return fetch(`/projects/mark-saved/${projectId}`, {
+        method: 'POST'
+    });
+}
+
 function saveWorkspace(silent = false) {
     fetch('/blockly/save', {
         method: 'POST',
@@ -24,6 +32,7 @@ function saveWorkspace(silent = false) {
         body: JSON.stringify({ workspace_xml: getWorkspaceXml() })
     })
     .then(r => r.json())
+    .then(d => markProjectSaved().then(() => d))
     .then(d => { if (!silent) alert(d.message); })
     .catch(e => { if (!silent) alert('Opslaan mislukt: ' + e.message); });
 }
