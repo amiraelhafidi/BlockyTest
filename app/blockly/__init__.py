@@ -1,24 +1,26 @@
 from datetime import datetime
 
-from flask import Blueprint, session
+from flask import Blueprint
 
 from app.db import execute_query
 
 bp = Blueprint("blockly", __name__)
 
 
-def create_testrun(project_id=None):
-    if not project_id:
-        user_id = session.get("user_id")
-        result = execute_query(
-            "SELECT testflow_id FROM testflow WHERE user_id = ? ORDER BY testflow_id LIMIT 1",
-            [user_id]
-        )
-        if result:
-            project_id = result[0].get("testflow_id")
+def create_testrun(project_id):
+    """Maak een nieuwe testrun aan vóór de test draait.
 
+    Args:
+        project_id (int): Id van het project (testflow) waar de testrun bij hoort.
+
+    Returns:
+        int: Het id van de zojuist aangemaakte testrun-rij.
+
+    Raises:
+        ValueError: Als er geen project is meegegeven.
+    """
     if not project_id:
-        raise ValueError("Geen project gevonden")
+        raise ValueError("Geen project gekozen")
 
     result = execute_query(
         "INSERT INTO testrun (testflow_id, started_at, status) VALUES (?, ?, 'running')",
@@ -28,6 +30,17 @@ def create_testrun(project_id=None):
 
 
 def update_testrun_result(testrun_id, status, report_html="", log_html=""):
+    """Sla het resultaat van een testrun op ná afloop van de test.
+
+    Werkt de bestaande testrun-rij bij naar de eindstatus en eindtijd, en
+    bewaart het bijbehorende rapport en de log in de aparte testreport-tabel.
+
+    Args:
+        testrun_id (int): Id van de testrun die bijgewerkt moet worden.
+        status (str): Eindstatus van de test, bijvoorbeeld 'passed' of 'failed'.
+        report_html (str): HTML van het testrapport. Standaard leeg.
+        log_html (str): HTML van de testlog. Standaard leeg.
+    """
     finished_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     execute_query(
         "UPDATE testrun SET status = ?, finished_at = ? WHERE testrun_id = ?",
