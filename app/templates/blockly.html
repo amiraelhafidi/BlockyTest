@@ -74,6 +74,7 @@
         <block type="close_browser"></block>
         <block type="maximize_window"></block>
         <block type="open_browser"></block>
+        <block type="capture_screenshot"></block>
     </category>
 
     <category name="Acties" colour="#F2994A">
@@ -94,11 +95,14 @@
 </xml>
 
 
-<script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
+<script src="https://unpkg.com/blockly/blockly.min.js"></script>
+<script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
 <script src="https://unpkg.com/blockly/python_compressed.js"></script>
 
 <script src="{{ url_for('static', filename='js/custom_blocks.js') }}"></script>
 <script src="{{ url_for('static', filename='js/blockly_editor.js') }}"></script>
+
+
 
 <script>
 (function () {
