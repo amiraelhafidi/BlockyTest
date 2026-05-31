@@ -101,33 +101,34 @@
 <script src="{{ url_for('static', filename='js/blockly_editor.js') }}"></script>
 
 <script>
-(function () {
-    var hint = document.getElementById('workspaceHint');
-    function updateHint() {
-        if (!hint) return;
-        hint.style.display = workspace.getAllBlocks().length === 0 ? 'block' : 'none';
-    }
-    workspace.addChangeListener(function (event) {
-        if (!event.isUiEvent) updateHint();
-    });
-    updateHint();
+// Hint element beheren - toon/verberg message als geen blokken
+const hint = document.getElementById('workspaceHint');
+const updateHint = () => {
+    if (hint) hint.style.display = workspace.getAllBlocks().length ? 'none' : 'block';
+};
 
-    var categoryTooltips = {
-        'Structuur': 'Basisopbouw: wachten, herhalingen en voorwaarden',
-        'Browser': 'Browser openen, sluiten en venster maximaliseren',
-        'Acties': 'Klikken, typen en interacties met de pagina',
-        'Controleren': 'Controleer of iets klopt op de pagina',
-        'Waarden': 'Tekst, getallen en variabelen voor je test'
-    };
-    setTimeout(function () {
-        document.querySelectorAll('.blocklyTreeRow, .blocklyToolboxCategory').forEach(function (row) {
-            var text = row.textContent.trim().replace(/\s+/g, ' ').split(' ')[0];
-            if (categoryTooltips[text]) {
-                row.title = categoryTooltips[text];
-            }
-        });
-    }, 1000);
-})();
+// Update hint wanneer workspace verandert
+workspace.addChangeListener(event => !event.isUiEvent && updateHint());
+updateHint();
+
+// Tooltips voor Blockly categorieën
+const categoryTooltips = {
+    'Structuur': 'Basisopbouw: wachten, herhalingen en voorwaarden',
+    'Browser': 'Browser openen, sluiten en venster maximaliseren',
+    'Acties': 'Klikken, typen en interacties met de pagina',
+    'Controleren': 'Controleer of iets klopt op de pagina',
+    'Waarden': 'Tekst, getallen en variabelen voor je test'
+};
+
+// Voeg tooltips toe na Blockly laad (1 seconde delay)
+setTimeout(() => {
+    document.querySelectorAll('.blocklyTreeRow, .blocklyToolboxCategory').forEach(row => {
+        const category = row.textContent.trim().split(/\s+/)[0];
+        if (categoryTooltips[category]) {
+            row.title = categoryTooltips[category];
+        }
+    });
+}, 1000);
 </script>
 
 </body>

@@ -1,3 +1,5 @@
+"""Blueprint voor projecten en login-routes van de Overzichtspagina."""
+
 from flask import Blueprint
 
 bp = Blueprint("projects", __name__)
