@@ -136,11 +136,18 @@ def account():
             return redirect(url_for('projects.account'))
 
         if action == 'delete_account':
-            query = "DELETE FROM users WHERE user_id = ?"
-            result = execute_query(query, [user_id])
+            check_query = "SELECT COUNT(*) as count FROM testflow WHERE user_id = ?"
+            check_result = execute_query(check_query, [user_id])
 
-            if isinstance(result, dict) and (result.get("error") or result.get("reason")):
+            if isinstance(check_result, list) and check_result and check_result[0].get('count', 0) > 0:
                 flash("Je account kan niet worden verwijderd omdat er nog projecten aan gekoppeld zijn.", "error")
+                return render_template('accountpage.html', user=user)
+
+            delete_query = "DELETE FROM users WHERE user_id = ?"
+            delete_result = execute_query(delete_query, [user_id])
+
+            if isinstance(delete_result, dict) and (delete_result.get("error") or delete_result.get("reason")):
+                flash("Je account kon niet worden verwijderd. Probeer het opnieuw.", "error")
                 return render_template('accountpage.html', user=user)
 
             session.clear()

@@ -14,7 +14,7 @@
         <h1 class="logo_text">BlockyTest</h1>
     </div>
     <div class="nav_right">
-        <a href="{{ url_for('projects.register') }}">Registreren</a>
+        <a href="{{ url_for('projects.account') }}">Mijn account</a>
         <a href="{{ url_for('projects.logout') }}">Uitloggen</a>
     </div>
 </header>
@@ -33,7 +33,16 @@
 
 <div class="projects_header">
     <h2>{{ title }}</h2>
-    <a href="{{ url_for('projects.add_project') }}" class="add_button">+</a>
+    <div class="projects_header_right">
+        <details class="sort_dropdown">
+            <summary class="sort_button">Sorteren <span class="sort_arrow">&#9660;</span></summary>
+            <div class="sort_menu">
+                <a href="{{ url_for('projects.overview', sort='nieuwst') }}" class="{{ 'sort_active' if sort == 'nieuwst' else '' }}">Recentst gewijzigd</a>
+                <a href="{{ url_for('projects.overview', sort='oudste') }}" class="{{ 'sort_active' if sort == 'oudste' else '' }}">Oudste eerst</a>
+            </div>
+        </details>
+        <a href="{{ url_for('projects.add_project') }}" class="add_button">+</a>
+    </div>
 </div>
 
 <div class="projects_box">
@@ -49,6 +58,10 @@
                             <form action="{{ url_for('projects.delete_project', id=project.testflow_id) }}" method="post" class="delete_form">
                                 <button type="submit" class="delete_button">Verwijderen</button>
                             </form>
+                            <div class="dropdown_meta">
+                                <p>Aangemaakt: {{ project.created_at_full }}</p>
+                                <p>Gewijzigd: {{ project.updated_at_full }}</p>
+                            </div>
                         </div>
                     </details>
                 </div>
