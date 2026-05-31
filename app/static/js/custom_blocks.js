@@ -108,6 +108,18 @@ Blockly.Blocks['wait_for_element'] = {
     }
 };
 
+// Custom block to capture a screenshot
+Blockly.Blocks['capture_screenshot'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField("Capture Screenshot");
+
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour("#F2994A");
+  }
+};
+
 
 
 // Python Code Generators 
@@ -175,8 +187,14 @@ WebDriverWait(driver, ${timeout}).until(
 `;
 };
 
+// Genereert Selenium code om de browser titel te controleren
 Blockly.Python.forBlock['assert_title'] = function(block, generator) {
     const title = block.getFieldValue('TITLE');
     return `assert "${title}" == driver.title\n`;
+};
+
+// Genereert Selenium code om een screenshot te maken
+Blockly.Python.forBlock['capture_screenshot'] = function(block, generator) {
+  return `driver.save_screenshot("screenshot.png")\n`;
 };
 
