@@ -99,7 +99,7 @@ class RobotTranslator:
 
         # De titel controleren we in twee stappen: ophalen en dan vergelijken.
         if block_type == "assert_title":
-            return f"    ${{title}}=    {keyword}\n    Should Contain    ${{title}}    {args[0]}"
+            return f"    ${{title}}=    Get Title\n    Should Contain    ${{title}}    {args[0]}"
 
         # Normaal geval: keyword en argumenten met tabs (vier spaties) ertussen.
         return "    " + "    ".join([keyword] + args)
