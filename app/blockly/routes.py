@@ -12,12 +12,27 @@ from app.db import execute_query
 
 
 def execute_robot_test(robot_file, testrun_id, timeout=60):
+    """Draai een Robot Framework-test en geef het resultaat terug.
+
+    Schrijft de testcode naar een tijdelijk bestand, draait die met Robot
+    Framework, bewaart de screenshots en leest het rapport en de log uit.
+
+    Args:
+        robot_file (str): De inhoud van het .robot-testbestand.
+        testrun_id (int): Id van de testrun, gebruikt om de screenshots op te slaan.
+        timeout (int): Maximale tijd in seconden dat de test mag draaien.
+
+    Returns:
+        dict: Het testresultaat met de uitvoer, het rapport en de log.
+    """
     with tempfile.TemporaryDirectory() as tmpdir:
+        # Schrijf de gegenereerde test naar een tijdelijk bestand.
         robot_path = os.path.join(tmpdir, "generated_test.robot")
 
         with open(robot_path, "w", encoding="utf-8") as f:
             f.write(robot_file)
 
+        # Draai de test met Robot Framework.
         result = subprocess.run(
             ["python", "-m", "robot", "--outputdir", tmpdir, robot_path],
             capture_output=True,
@@ -25,6 +40,7 @@ def execute_robot_test(robot_file, testrun_id, timeout=60):
             timeout=timeout,
         )
 
+        # Lees het rapport en de log die Robot heeft gemaakt (als ze bestaan).
         report_path = os.path.join(tmpdir, "report.html")
         log_path = os.path.join(tmpdir, "log.html")
 
@@ -50,7 +66,7 @@ def execute_robot_test(robot_file, testrun_id, timeout=60):
         log_html = log_html.replace(filename, screenshot_url)
         report_html = report_html.replace(filename, screenshot_url)
 
-        result_dict = TestResult.from_process(result).to_dict(result.stderr)
+        result_dict = TestResult(result).to_dict()
         result_dict["report_html"] = report_html
         result_dict["log_html"] = log_html
 
@@ -58,6 +74,14 @@ def execute_robot_test(robot_file, testrun_id, timeout=60):
 
 
 def get_project_name(project_id):
+    """Zoek de naam van een project op.
+
+    Args:
+        project_id (int): Id van het project (testflow).
+
+    Returns:
+        str: De projectnaam, of een lege tekst als het project niet bestaat.
+    """
     if not project_id:
         return ""
     result = execute_query("SELECT name FROM testflow WHERE testflow_id = ?", [project_id])
@@ -65,6 +89,14 @@ def get_project_name(project_id):
 
 
 def get_testruns(project_id):
+    """Haal de testruns van een project op, de nieuwste eerst.
+
+    Args:
+        project_id (int): Id van het project (testflow).
+
+    Returns:
+        list: De laatste 100 testruns van dit project.
+    """
     return execute_query("""
         SELECT tr.testrun_id, tr.status, tr.started_at, tf.name AS project_name
         FROM testrun tr
@@ -77,17 +109,30 @@ def get_testruns(project_id):
 
 @bp.route("/")
 def editor():
+    """Toon de Blockly-editor waarin de gebruiker zijn test bouwt.
+
+    Returns:
+        str: De gerenderde HTML-pagina van de editor.
+    """
     project_id = request.args.get("project_id")
     return render_template("blockly.html", project_name=get_project_name(project_id), project_id=project_id)
 
 
 @bp.route("/run", methods=["POST"])
 def run():
+    """Genereer de testcode uit de blokken, draai de test en sla het resultaat op.
+
+    Returns:
+        Response: Het testresultaat als JSON voor de browser.
+    """
     data = request.get_json()
+    # Zet de blokken uit de editor om in een Robot-testbestand.
     robot_file = RobotCodeGenerator(data.get("workspace_xml", "")).to_robot()
+    # Maak een testrun aan, draai de test en bepaal of die geslaagd is.
     testrun_id = create_testrun(data.get("project_id"))
     results = execute_robot_test(robot_file, testrun_id)
     status = "passed" if results["return_code"] == 0 else "failed"
+    # Sla het eindresultaat met rapport en log op.
     update_testrun_result(
         testrun_id, status,
         results.get("report_html", ""),
@@ -98,6 +143,11 @@ def run():
 
 @bp.route("/geschiedenis")
 def geschiedenis():
+    """Toon de lijst met eerdere testruns van een project.
+
+    Returns:
+        str: De gerenderde HTML-pagina met de testgeschiedenis.
+    """
     project_id = request.args.get("project_id")
     return render_template(
         "testrun_history.html",
@@ -109,6 +159,14 @@ def geschiedenis():
 
 @bp.route("/testrun/<int:testrun_id>")
 def testrun_detail(testrun_id):
+    """Toon de detailpagina van één testrun.
+
+    Args:
+        testrun_id (int): Id van de testrun die getoond moet worden.
+
+    Returns:
+        str: De gerenderde detailpagina, of een 404 als de testrun niet bestaat.
+    """
     row = execute_query("""
         SELECT tr.testrun_id, tr.testflow_id, tr.status, tr.started_at, tr.finished_at,
                tf.name AS project_name,
@@ -129,6 +187,14 @@ def testrun_detail(testrun_id):
 
 @bp.route("/testrun/<int:testrun_id>/report")
 def testrun_report(testrun_id):
+    """Geef het opgeslagen HTML-rapport van een testrun terug.
+
+    Args:
+        testrun_id (int): Id van de testrun.
+
+    Returns:
+        Response: Het rapport als HTML, of een 404 als er geen rapport is.
+    """
     row = execute_query(
         "SELECT report_html FROM testreport WHERE testrun_id = ?", [testrun_id]
     )
@@ -138,6 +204,14 @@ def testrun_report(testrun_id):
 
 @bp.route("/testrun/<int:testrun_id>/log")
 def testrun_log(testrun_id):
+    """Geef de opgeslagen HTML-log van een testrun terug.
+
+    Args:
+        testrun_id (int): Id van de testrun.
+
+    Returns:
+        Response: De log als HTML, of een 404 als er geen log is.
+    """
     row = execute_query(
         "SELECT log_html FROM testreport WHERE testrun_id = ?", [testrun_id]
     )
@@ -160,6 +234,13 @@ def testrun_file(testrun_id, filename):
 
 @bp.route("/save", methods=["POST"])
 def save():
+    """Sla de blokken (workspace) van een project op.
+
+    Bestaat het project al, dan worden de blokken bijgewerkt.
+
+    Returns:
+        Response: Een JSON-bericht dat het opslaan gelukt is.
+    """
     data = request.get_json()
     execute_query(
         "INSERT INTO blockly_project (project_name, workspace_xml) VALUES (?, ?) ON DUPLICATE KEY UPDATE workspace_xml = VALUES(workspace_xml)",
@@ -170,5 +251,10 @@ def save():
 
 @bp.route("/load", methods=["GET"])
 def load():
+    """Laad de laatst opgeslagen blokken (workspace) in.
+
+    Returns:
+        Response: De opgeslagen blokken als JSON, of leeg als er niets is.
+    """
     result = execute_query("SELECT workspace_xml FROM blockly_project ORDER BY id DESC LIMIT 1")
     return jsonify({"workspace_xml": result[0].get("workspace_xml", "") if result else ""})
