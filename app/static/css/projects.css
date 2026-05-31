@@ -98,13 +98,81 @@ main {
     font-size: 42px;
 }
 
+.projects_header_right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.sort_dropdown {
+    position: relative;
+}
+
+.sort_button {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    color: #333;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+
+.sort_button::-webkit-details-marker {
+    display: none;
+}
+
+.sort_arrow {
+    font-size: 11px;
+    margin-left: 4px;
+}
+
+.sort_button:hover {
+    background-color: #f0f0f0;
+}
+
+.sort_menu {
+    position: absolute;
+    top: 36px;
+    right: 0;
+    z-index: 10;
+    min-width: 180px;
+    padding: 6px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.sort_menu a {
+    display: block;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #222;
+    text-decoration: none;
+}
+
+.sort_menu a:hover {
+    background-color: rgb(224, 230, 241);
+}
+
+.sort_menu a.sort_active {
+    font-weight: bold;
+    color: rgb(66, 120, 192);
+}
+
 .add_button {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 55px;
     height: 55px;
-    margin-left: auto;
     border: 1px solid rgba(66, 120, 192, 0.4);
     border-radius: 4px;
     background: rgb(66, 120, 192);
@@ -254,6 +322,18 @@ main {
 }
 
 .delete_form {
+    margin: 0;
+}
+
+.dropdown_meta {
+    padding: 8px 14px;
+    border-top: 1px solid #eee;
+    font-size: 11px;
+    color: #aaa;
+    line-height: 1.6;
+}
+
+.dropdown_meta p {
     margin: 0;
 }
 

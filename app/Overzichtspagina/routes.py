@@ -1,4 +1,4 @@
-from flask import flash, redirect, render_template, request, session, url_for
+from flask import flash, jsonify, redirect, render_template, request, session, url_for
 
 from app.Overzichtspagina import bp
 from app.Overzichtspagina.loginroutes import is_admin
@@ -36,17 +36,20 @@ def overview():
     """
     Render the project overview page with all projects ordered by newest first.
     """
+    sort = request.args.get("sort", "nieuwst")
+
     if is_admin():
-        projects = repository.get_all()
+        projects = repository.get_all(sort=sort)
         title = "Alle projecten"
     else:
-        projects = repository.get_for_user(session.get("user_id"))
+        projects = repository.get_for_user(session.get("user_id"), sort=sort)
         title = "Mijn projecten"
 
     return render_template(
         "projects.html",
         projects=[project.to_template_dict() for project in projects],
         title=title,
+        sort=sort,
     )
 
 
@@ -74,6 +77,23 @@ def project_detail(project_id):
         return redirect(url_for("projects.overview"))
 
     return f"Project detail page for project {project_id}"
+
+
+@bp.route("/mark-saved/<int:project_id>", methods=["POST"])
+def mark_project_saved(project_id):
+    """
+    Update de wijzigingsdatum nadat een project is opgeslagen in de editor.
+    """
+    project = repository.get_by_id(project_id)
+
+    if not project:
+        return jsonify({"success": False, "message": "Project niet gevonden"}), 404
+
+    if not can_change_project(project):
+        return jsonify({"success": False, "message": "Geen toegang"}), 403
+
+    repository.update_saved_at(project_id)
+    return jsonify({"success": True})
 
 
 @bp.route("/delete/<int:id>", methods=["POST"])
