@@ -13,6 +13,10 @@
         <img src="{{ url_for('static', filename='img/image.png') }}" alt="BlockyTest logo" class="header_logo">
         <h1 class="logo_text">BlockyTest</h1>
     </div>
+    <div class="nav_right">
+        <a href="{{ url_for('projects.overview') }}">Mijn projecten</a>
+        <a href="{{ url_for('projects.logout') }}">Uitloggen</a>
+    </div>
 </header>
 
 <div class="form_page">
