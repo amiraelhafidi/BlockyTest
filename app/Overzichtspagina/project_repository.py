@@ -7,13 +7,14 @@ from app.Overzichtspagina.project import Project
 class ProjectRepository:
     """Haalt projecten op uit de database en slaat projectwijzigingen op."""
 
-    def get_all(self):
+    def get_all(self, sort="nieuwst"):
         """Haal alle projecten op, gesorteerd van nieuw naar oud.
 
         Returns:
             list[Project]: Lijst met Project objecten.
         """
-        query = "SELECT * FROM testflow ORDER BY created_at DESC"
+        order = "ASC" if sort == "oudste" else "DESC"
+        query = f"SELECT * FROM testflow ORDER BY updated_at {order}, created_at {order}"
         result = execute_query(query)
 
         if not isinstance(result, list):
@@ -21,11 +22,12 @@ class ProjectRepository:
 
         return [Project.from_row(row) for row in result]
 
-    def get_for_user(self, user_id):
+    def get_for_user(self, user_id, sort="nieuwst"):
         """
         Haal projecten op die bij een gebruiker horen.
         """
-        query = "SELECT * FROM testflow WHERE user_id = ? ORDER BY created_at DESC"
+        order = "ASC" if sort == "oudste" else "DESC"
+        query = f"SELECT * FROM testflow WHERE user_id = ? ORDER BY updated_at {order}, created_at {order}"
         result = execute_query(query, [user_id])
 
         if not isinstance(result, list):
@@ -71,8 +73,13 @@ class ProjectRepository:
         Returns:
             dict: Antwoord van de database-API.
         """
-        query = "UPDATE testflow SET name = ?, description = ? WHERE testflow_id = ?"
+        query = "UPDATE testflow SET name = ?, description = ?, updated_at = CURRENT_TIMESTAMP WHERE testflow_id = ?"
         return execute_query(query, [project.name, project.description, project.testflow_id])
+
+    def update_saved_at(self, project_id):
+        """Werk de wijzigingsdatum bij wanneer een project wordt opgeslagen."""
+        query = "UPDATE testflow SET updated_at = CURRENT_TIMESTAMP WHERE testflow_id = ?"
+        return execute_query(query, [project_id])
 
     def delete(self, project_id):
         """Verwijder een project uit de testflow-tabel.
