@@ -103,17 +103,27 @@ h1 {
 /* Blockly canvas */
 .workspace {
     flex: 1 1 auto;
-    border: 3px dashed #ccc;
     border-radius: 15px;
-    padding: 20px;
     overflow: hidden;
     min-height: 0;
     min-width: 0;
+    background-color: #f5f5f5;
 }
 
 #blocklyDiv {
     height: 100%;
     width: 100%;
+    background-color: #fafafa;
+    background-image: radial-gradient(circle, #ccc 1px, transparent 1px);
+    background-size: 22px 22px;
+}
+
+#blocklyDiv svg {
+    background: transparent;
+}
+
+.blocklyMainBackground {
+    fill: transparent !important;
 }
 
 /* Gegenereerde code paneel */
@@ -158,6 +168,13 @@ h1 {
     flex-direction: column;
     min-height: 0;
     gap: 8px;
+}
+
+.results-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 #results-panel {
