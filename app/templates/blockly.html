@@ -11,26 +11,33 @@
 
 <header class="header">
     <div class="header-left">
-        <img src="{{ url_for('static', filename='img/Wail-Salutem-foundation-logo.webp') }}" alt="Logo" class="logo">
-        <h2 class="app-title">BlockyTest</h2>
+        <a href="{{ url_for('main.index') }}" style="display:flex; align-items:center; gap:12px; text-decoration:none;">
+            <img src="{{ url_for('static', filename='img/Wail-Salutem-foundation-logo.webp') }}" alt="Logo" class="logo">
+            <h2 class="app-title">BlockyTest</h2>
+        </a>
     </div>
     <div class="header-right">
-        <a href="{{ url_for('projects.overview') }}" class="header-btn">Mijn projecten</a>
-        <button type="button" class="header-btn" onclick="saveWorkspace()">Opslaan</button>
-        <button type="button" class="header-btn" onclick="loadWorkspace()">Openen</button>
+        <a href="{{ url_for('projects.overview') }}" class="header-btn" title="Terug naar projectenoverzicht">Mijn projecten</a>
+        <button type="button" class="header-btn" onclick="saveWorkspace()" title="Project opslaan (Ctrl+S)">Opslaan</button>
+        <button type="button" class="header-btn" onclick="loadWorkspace()" title="Een ander project openen">Openen</button>
     </div>
 </header>
 
-<h1>{% if project_name %}{{ project_name }}{% else %}Blokken{% endif %}</h1>
+<div class="project-header">
+    <a href="{{ url_for('projects.overview') }}" class="back-link" title="Terug naar projectenoverzicht">← Terug</a>
+    <span class="project-label">Project:</span>
+    <h1>{% if project_name %}{{ project_name }}{% else %}Blokken{% endif %}</h1>
+</div>
 <div class="container">
     <div class="workspace">
         <div id="blocklyDiv"></div>
+        <div class="workspace-hint" id="workspaceHint">Sleep een blok vanuit de toolbox om te beginnen</div>
     </div>
     <div class="right-panel">
         <div id="code-panel">
             <div class="code-panel-header">
                 <b>Gegenereerde code</b>
-                <button type="button" id="copyCodeBtn" class="copy-btn" onclick="copyCode()" title="Code naar klembord">
+                <button type="button" id="copyCodeBtn" class="copy-btn" onclick="copyCode()" title="Code kopiëren naar klembord">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="vertical-align: middle; margin-right: 4px;">
                         <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                         <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
@@ -44,13 +51,13 @@
             <div class="results-title">
                 <b>Test resultaten</b>
                 <div>
-                    <button type="button" id="runBtn" class="copy-btn" onclick="runTest()">Run</button>
-                    <a href="{{ url_for('blockly.geschiedenis', project_id=project_id) }}" class="copy-btn" style="text-decoration: none; margin-left: 6px;">Geschiedenis</a>
+                    <button type="button" id="runBtn" class="btn-primary" onclick="runTest()" title="Test uitvoeren">Run</button>
+                    <a href="{{ url_for('blockly.geschiedenis', project_id=project_id) }}" class="btn-secondary" style="margin-left: 6px;" title="Bekijk eerdere testresultaten">Geschiedenis</a>
                 </div>
             </div>
             <div id="results-panel">
                 <div id="testResults">
-                <p class="result-placeholder">Klik op Run om de testresultaten te bekijken</p>
+                <p class="result-placeholder">Klik op "Run" om de test uit te voeren</p>
                 </div>
             </div>
         </div>
@@ -92,6 +99,36 @@
 
 <script src="{{ url_for('static', filename='js/custom_blocks.js') }}"></script>
 <script src="{{ url_for('static', filename='js/blockly_editor.js') }}"></script>
+
+<script>
+(function () {
+    var hint = document.getElementById('workspaceHint');
+    function updateHint() {
+        if (!hint) return;
+        hint.style.display = workspace.getAllBlocks().length === 0 ? 'block' : 'none';
+    }
+    workspace.addChangeListener(function (event) {
+        if (!event.isUiEvent) updateHint();
+    });
+    updateHint();
+
+    var categoryTooltips = {
+        'Structuur': 'Basisopbouw: wachten, herhalingen en voorwaarden',
+        'Browser': 'Browser openen, sluiten en venster maximaliseren',
+        'Acties': 'Klikken, typen en interacties met de pagina',
+        'Controleren': 'Controleer of iets klopt op de pagina',
+        'Waarden': 'Tekst, getallen en variabelen voor je test'
+    };
+    setTimeout(function () {
+        document.querySelectorAll('.blocklyTreeRow, .blocklyToolboxCategory').forEach(function (row) {
+            var text = row.textContent.trim().replace(/\s+/g, ' ').split(' ')[0];
+            if (categoryTooltips[text]) {
+                row.title = categoryTooltips[text];
+            }
+        });
+    }, 1000);
+})();
+</script>
 
 </body>
 </html>
