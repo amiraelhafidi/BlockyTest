@@ -94,10 +94,6 @@ def register():
             flash("Vul alle velden in.", "error")
             return render_template('registerpage.html', name=name, email=email)
 
-        if len(password) < 3:
-            flash("Je wachtwoord moet minimaal 3 tekens lang zijn.", "error")
-            return render_template('registerpage.html', name=name, email=email)
-
         # Controleer zowel email als gebruikersnaam om duplicaten te voorkomen
         query = "SELECT * FROM users WHERE email = ? OR name = ? LIMIT 1"
         existing_user = execute_query(query, [email, name])
@@ -144,28 +140,15 @@ def account():
             # Gebruiker wil wachtwoord wijzigen
             current_password = request.form.get('current_password', '')
             new_password = request.form.get('new_password', '')
-            confirm_password = request.form.get('confirm_password', '')
 
-            # Controleer of alle wachtwoordvelden ingevuld zijn
-            if not current_password or not new_password or not confirm_password:
-                flash("Vul alle wachtwoordvelden in.", "error")
-                return render_template('accountpage.html', user=user)
-
-            if len(new_password) < 3:
-                flash("Je nieuwe wachtwoord moet minimaal 3 tekens lang zijn.", "error")
-                return render_template('accountpage.html', user=user)
-
-            if new_password != confirm_password:
-                flash("De twee nieuwe wachtwoorden komen niet overeen.", "error")
+            # Controleer of beide wachtwoorden ingevuld zijn
+            if not current_password or not new_password:
+                flash("Vul je huidige en nieuwe wachtwoord in.", "error")
                 return render_template('accountpage.html', user=user)
 
             # Verifieer het huidige wachtwoord (WAARSCHUWING: plaintext!)
             if user['password_hash'] != current_password:
                 flash("Je huidige wachtwoord klopt niet.", "error")
-                return render_template('accountpage.html', user=user)
-
-            if current_password == new_password:
-                flash("Je nieuwe wachtwoord mag niet hetzelfde zijn als je huidige wachtwoord.", "error")
                 return render_template('accountpage.html', user=user)
 
             # Werk wachtwoord bij in database

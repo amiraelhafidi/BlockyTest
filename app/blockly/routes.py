@@ -1,6 +1,7 @@
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 
 from flask import Response, jsonify, render_template, request, send_from_directory, current_app
@@ -34,7 +35,7 @@ def execute_robot_test(robot_file, testrun_id, timeout=60):
 
         # Draai de test met Robot Framework.
         result = subprocess.run(
-            ["python", "-m", "robot", "--outputdir", tmpdir, robot_path],
+            [sys.executable, "-m", "robot", "--outputdir", tmpdir, robot_path],
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -60,11 +61,10 @@ def execute_robot_test(robot_file, testrun_id, timeout=60):
                 shutil.copy(
                     os.path.join(tmpdir, filename),
                     os.path.join(screenshots_dir, filename)
-        )
-
-        screenshot_url = f"/blockly/testrun/{testrun_id}/{filename}"
-        log_html = log_html.replace(filename, screenshot_url)
-        report_html = report_html.replace(filename, screenshot_url)
+                )
+                screenshot_url = f"/blockly/testrun/{testrun_id}/{filename}"
+                log_html = log_html.replace(filename, screenshot_url)
+                report_html = report_html.replace(filename, screenshot_url)
 
         result_dict = TestResult(result).to_dict()
         result_dict["report_html"] = report_html

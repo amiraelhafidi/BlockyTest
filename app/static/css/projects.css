@@ -413,29 +413,6 @@ button:hover,
     background-color: #3a6ba8;
 }
 
-/* Secties op de accountpagina */
-.account_section {
-    padding: 20px 0;
-    border-top: 1px solid #e0e0e0;
-}
-
-.account_section:first-of-type {
-    padding-top: 0;
-    border-top: none;
-}
-
-/* Destructieve knop (account verwijderen) */
-.button_danger {
-    background-color: white;
-    border: 1px solid #d9534f;
-    color: #d9534f;
-}
-
-.button_danger:hover {
-    background-color: #d9534f;
-    color: white;
-}
-
 /* Algemene linkstijl */
 a {
     color: black;

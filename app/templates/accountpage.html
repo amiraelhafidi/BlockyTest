@@ -33,43 +33,34 @@
             {% endif %}
         {% endwith %}
 
-        <div class="account_section">
-            <p><strong>Gebruikersnaam:</strong> {{ user.name }}</p>
-            <p><strong>E-mailadres:</strong> {{ user.email }}</p>
-            {% if user.role == 'admin' %}
-                <p><strong>Rol:</strong> {{ user.role }}</p>
-            {% endif %}
-        </div>
+        <p><strong>Gebruikersnaam:</strong> {{ user.name }}</p>
+        <p><strong>E-mailadres:</strong> {{ user.email }}</p>
+        <p><strong>Rol:</strong> {{ user.role }}</p>
 
-        <div class="account_section">
-            <form method="POST" novalidate>
-                <input type="hidden" name="action" value="change_password">
+        <h3>Wachtwoord wijzigen</h3>
+        <form method="POST" novalidate>
+            <input type="hidden" name="action" value="change_password">
 
-                <label for="current_password">Huidig wachtwoord:</label>
-                <input type="password" id="current_password" name="current_password">
+            <label for="current_password">Huidig wachtwoord:</label>
+            <input type="password" id="current_password" name="current_password">
 
-                <label for="new_password">Nieuw wachtwoord:</label>
-                <input type="password" id="new_password" name="new_password">
+            <label for="new_password">Nieuw wachtwoord:</label>
+            <input type="password" id="new_password" name="new_password">
 
-                <label for="confirm_password">Nieuw wachtwoord bevestigen:</label>
-                <input type="password" id="confirm_password" name="confirm_password">
+            <div class="form_buttons">
+                <button type="submit">Wachtwoord wijzigen</button>
+            </div>
+        </form>
 
-                <div class="form_buttons">
-                    <button type="submit">Wachtwoord wijzigen</button>
-                </div>
-            </form>
-        </div>
+        <h3>Account verwijderen</h3>
+        <form method="POST">
+            <input type="hidden" name="action" value="delete_account">
 
-        <div class="account_section">
-            <form method="POST" onsubmit="return confirm('Weet je zeker dat je je account wilt verwijderen? Dit kan niet ongedaan worden gemaakt.');">
-                <input type="hidden" name="action" value="delete_account">
-
-                <div class="form_buttons">
-                    <button type="submit" class="button_danger">Account verwijderen</button>
-                </div>
-            </form>
-        </div>
-
+            <div class="form_buttons">
+                <button type="submit">Account verwijderen</button>
+                <a href="{{ url_for('projects.overview') }}" class="go_back">Terug naar projecten</a>
+            </div>
+        </form>
     </div>
 </div>
 

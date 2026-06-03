@@ -23,13 +23,18 @@ class TestResult:
             if not any(word in line for word in robot_file_lines)
         ]
 
+        # Bewaar stderr zodat opstartfouten (bijv. module niet gevonden) zichtbaar zijn.
+        self.stderr = result.stderr
+
     def to_dict(self):
         """Zet de uitkomst in een dict, klaar om naar de browser te sturen.
 
         Returns:
             dict: De returncode en de tekst van de test.
         """
+        stdout = "\n".join(self.output_lines)
+        output = stdout or self.stderr
         return {
             "return_code": self.return_code,
-            "output": "\n".join(self.output_lines),
+            "output": output,
         }
